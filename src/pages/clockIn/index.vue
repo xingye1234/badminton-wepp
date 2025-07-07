@@ -39,8 +39,8 @@
           :class="[
             'flex items-center justify-between p-4 rounded-xl transition-all duration-200',
             selectedIntensity === item.value
-              ? 'border-2 border-blue-400 bg-[#f3f8ff]'
-              : 'border border-gray-600 bg-transparent',
+              ? 'ring-blue-600 bg-[#f3f8ff] ring-2'
+              : 'ring-gray-200 bg-white ring-2',
           ]"
           @click="selectedIntensity = item.value"
         >

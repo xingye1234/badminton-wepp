@@ -23,9 +23,7 @@
           <text class="text-xs text-gray-500 mt-1">训练天数</text>
         </view>
         <view class="flex flex-col items-center">
-          <text class="text-3xl font-extrabold text-purple-500"
-            >{{ monthHours }}h</text
-          >
+          <text class="text-3xl font-extrabold text-purple-500">{{ monthHours }}h</text>
           <text class="text-xs text-gray-500 mt-1">总时长</text>
         </view>
         <view class="flex flex-col items-center">
@@ -44,9 +42,7 @@
         <text class="text-xl font-bold">强度分布</text>
       </view>
       <view class="flex flex-col gap-4">
-        <view
-          class="flex items-center justify-between p-4 rounded-2xl border border-green-200 bg-green-50"
-        >
+        <view class="flex items-center justify-between p-4 rounded-2xl border border-green-200 bg-green-50">
           <view class="flex items-center">
             <view class="w-20 h-20 rounded-full bg-green-500 mr-2" />
             <text class="font-bold text-green-700">轻松训练</text>
@@ -59,9 +55,7 @@
             <text class="text-xs text-gray-500">天</text>
           </view>
         </view>
-        <view
-          class="flex items-center justify-between p-4 rounded-2xl border border-yellow-200 bg-yellow-50"
-        >
+        <view class="flex items-center justify-between p-4 rounded-2xl border border-yellow-200 bg-yellow-50">
           <view class="flex items-center">
             <view class="w-20 h-20 rounded-full bg-yellow-400 mr-2" />
             <text class="font-bold text-yellow-700">中等强度</text>
@@ -74,9 +68,7 @@
             <text class="text-xs text-gray-500">天</text>
           </view>
         </view>
-        <view
-          class="flex items-center justify-between p-4 rounded-2xl border border-red-200 bg-red-50"
-        >
+        <view class="flex items-center justify-between p-4 rounded-2xl border border-red-200 bg-red-50">
           <view class="flex items-center">
             <view class="w-20 h-20 rounded-full bg-red-500 mr-2" />
             <text class="font-bold text-red-700">高强度训练</text>
@@ -99,46 +91,30 @@
           <text class="i-mdi:medal text-xl text-yellow-500 mr-2" />
           <text class="text-xl font-bold">成就徽章</text>
         </view>
-        <text class="text-xs text-gray-500"
-          >{{ unlocked }}/{{ achievements.length }}</text
-        >
+        <text class="text-xs text-gray-500">{{ unlocked }}/{{ achievements.length }}</text>
       </view>
       <view class="grid grid-cols-2 gap-4 mb-4">
-        <view
-          v-for="(item, idx) in achievements"
-          :key="item.title"
-          :class="[
-            'rounded-lg p-5 flex flex-col justify-between items-center min-h-[120px] border ring-gray-200 shadow-md transition-all',
-            item.unlocked
-              ? 'bg-yellow-50 border-yellow-300 scale-105 ring-2 ring-yellow-200'
-              : 'bg-gray-50 border-gray-100 opacity-80',
-          ]"
-        >
+        <view v-for="(item, idx) in achievements" :key="item.title" :class="[
+          'rounded-lg p-5 flex flex-col justify-center items-center min-h-[120px] border ring-gray-200 shadow-md transition-all',
+          item.unlocked
+            ? 'bg-yellow-50 border-yellow-300 scale-105 ring-2 ring-yellow-200'
+            : 'bg-gray-50 border-gray-100 opacity-80',
+        ]">
           <view class="flex items-center mb-2 flex-col">
-            <text
-              :class="[
-                'text-2xl mr-2',
-                item.unlocked ? 'animate-bounce' : '',
-                item.iconColor,
-              ]"
-              >{{ item.icon }}</text
-            >
+            <text :class="[
+              'text-2xl mr-2',
+              item.unlocked ? 'animate-bounce' : '',
+              item.iconColor,
+            ]">{{ item.icon }}</text>
             <text class="font-bold text-sm">{{ item.title }}</text>
           </view>
-          <text class="text-xs text-gray-500 mb-1">{{ item.desc }}</text>
+          <text class="text-xs text-gray-500 my-2">{{ item.desc }}</text>
           <template v-if="item.unlocked">
             <text class="text-xs text-yellow-600 font-bold">✨已解锁</text>
           </template>
           <template v-else>
-            <wd-progress
-              :percentage="Math.round((item.progress / item.goal) * 100)"
-              stroke-width="14"
-              color="#2563eb"
-              track-color="#e5e7eb"
-              :show-text="false"
-              hide-text
-              class="mb-1"
-            />
+            <wd-progress :percentage="Math.round((item.progress / item.goal) * 100)" stroke-width="14" color="#2563eb"
+              track-color="#e5e7eb" :show-text="false" hide-text class="mb-1" />
             <text class="text-xs text-gray-400 font-bold">{{
               item.progressLabel
             }}</text>
@@ -148,58 +124,31 @@
       <!-- 成就完成度 -->
       <view class="bg-yellow-50 rounded-lg p-4 mt-2 flex items-center">
         <text class="font-bold text-yellow-700 mr-2 text-sm w-2/7">完成度</text>
-        <wd-progress
-          :percentage="achievementPercent"
-          stroke-width="10"
-          color="#2563eb"
-          track-color="#e5e7eb"
-          :show-text="false"
-          class="flex-1"
-          hide-text
-          custom-class="progress"
-        />
-        <text class="text-lg font-extrabold text-yellow-600 ml-4"
-          >{{ achievementPercent }}%</text
-        >
+        <wd-progress :percentage="achievementPercent" stroke-width="10" color="#2563eb" track-color="#e5e7eb"
+          :show-text="false" class="flex-1" hide-text custom-class="progress" />
+        <text class="text-lg font-extrabold text-yellow-600 ml-4">{{ achievementPercent }}%</text>
       </view>
     </view>
 
-    <!-- wd-tabs放在最底部，内容用插槽+v-for渲染 -->
-    <wd-tabs
-      :tabs="tabs"
-      :current="currentTab"
-      @change="onTabChange"
-      class="mx-4 mt-6 mb-2"
-    >
-      <wd-tab
-        v-for="(tab, index) in tabs"
-        :key="tab.name"
-        :title="tab.name"
-        v-show="currentTab === index"
-      >
-        <view v-if="index === 0">
+    <view class="bg-white shadow-md mx-4 mt-8 flex flex-col min-h-[60vh] rounded-xl">
+      <view class="bg-white shadow-lg mx-4 mt-8 flex justify-between">
+        <view class="text-md font-semibold h-full py-2 px-6 rounded-lg" v-for="(tab, index) in tabs" :key="index" @click="currentTab = index" :class="[currentTab === index ? 'text-white' : 'text-gray-500', currentTab === index ? 'bg-blue-500' : '']">
+          {{ tab.name }}
+        </view>
+      </view>
+      <view v-show="currentTab === 0">
           <!-- 训练建议内容 -->
           <view class="bg-white rounded-xl shadow-lg mx-4 p-4 mt-8">
             <view class="flex items-center mb-4">
-              <text
-                class="i-mdi:lightbulb-on-outline text-xl text-yellow-400 mr-2"
-              />
-              <text class="text-xl font-bold">智能训练建议</text>
+              <text class="i-mdi:lightbulb-on-outline text-xl text-yellow-400 mr-2" />
+              <text class="text-lg font-bold">智能训练建议</text>
             </view>
-            <view
-              class="bg-[#f6faff] border-l-4 border-blue-400 rounded-lg p-5"
-            >
+            <view class="bg-[#f6faff] border-l-4 border-blue-400 rounded-lg p-5">
               <view class="flex items-center mb-2">
-                <text
-                  class="i-mdi:lightbulb-on-outline text-lg text-blue-500 mr-1"
-                />
-                <text class="font-bold text-blue-600 text-base"
-                  >开始你的训练之旅</text
-                >
+                <text class="i-mdi:lightbulb-on-outline text-lg text-blue-500 mr-1" />
+                <text class="font-bold text-blue-600 text-base">开始你的训练之旅</text>
               </view>
-              <text class="text-sm text-gray-600 mb-2 block"
-                >本月还没有训练记录，建议制定一个合理的训练计划。</text
-              >
+              <text class="text-sm text-gray-600 mb-2 block">本月还没有训练记录，建议制定一个合理的训练计划。</text>
               <view class="text-sm text-gray-700 mt-2 space-y-1">
                 <view>每周安排3-4次训练</view>
                 <view>从轻松强度开始，逐步适应</view>
@@ -209,67 +158,46 @@
             </view>
           </view>
         </view>
-        <view v-else-if="index === 1">
+        <view v-show="currentTab === 1">
           <!-- 训练计划内容 -->
           <view class="bg-white rounded-xl shadow-lg mx-4 p-4 mt-8">
             <view class="flex items-center justify-between mb-4">
               <view class="flex items-center">
-                <text
-                  class="i-mdi:calendar-outline text-xl text-purple-500 mr-2"
-                />
-                <text class="text-xl font-bold">下周训练计划</text>
+                <text class="i-mdi:calendar-outline text-xl text-purple-500 mr-2" />
+                <text class="text-lg font-bold">下周训练计划</text>
               </view>
-              <wd-button size="small" type="primary" @click="generatePlan" v-show="!showPlan"
-                >生成计划</wd-button
-              >
+              <wd-button type="primary" @click="generatePlan" v-show="!showPlan">生成计划</wd-button>
             </view>
-            <view
-              v-if="!showPlan"
-              class="flex flex-col items-center justify-center py-12"
-            >
-              <text
-                class="i-mdi:calendar-outline text-6xl text-gray-300 mb-4"
-              />
-              <text class="text-gray-400 mb-2 text-sm"
-                >点击"生成计划"按钮，根据你的训练数据智能制定下周训练安排</text
-              >
-              <wd-button size="small" type="primary" @click="generatePlan"
-                >开始制定计划</wd-button
-              >
+            <view v-if="!showPlan" class="flex flex-col items-center justify-center py-12">
+              <text class="i-mdi:calendar-outline text-6xl text-gray-300 mb-4" />
+              <text class="text-gray-400 mb-2 text-sm">点击"生成计划"按钮，根据你的训练数据智能制定下周训练安排</text>
+              <wd-button type="primary" @click="generatePlan">开始制定计划</wd-button>
             </view>
             <view v-else>
-              <view
-                v-for="(item, idx) in weekPlan"
-                :key="item.week"
-                :class="[
-                  'rounded-2xl p-5 mb-4',
-                  item.color === 'green'
-                    ? 'bg-[#e8f5e9] border border-green-200'
-                    : '',
-                  item.color === 'yellow'
-                    ? 'bg-[#fffde7] border border-yellow-300'
-                    : '',
-                  item.color === 'red'
-                    ? 'bg-[#ffebee] border border-red-300'
-                    : '',
-                  item.color === 'gray'
-                    ? 'bg-gray-50 border border-gray-200'
-                    : '',
-                ]"
-              >
+              <view v-for="(item, idx) in weekPlan" :key="item.week" :class="[
+                'rounded-2xl p-5 mb-4',
+                item.color === 'green'
+                  ? 'bg-[#e8f5e9] border border-green-200'
+                  : '',
+                item.color === 'yellow'
+                  ? 'bg-[#fffde7] border border-yellow-300'
+                  : '',
+                item.color === 'red'
+                  ? 'bg-[#ffebee] border border-red-300'
+                  : '',
+                item.color === 'gray'
+                  ? 'bg-gray-50 border border-gray-200'
+                  : '',
+              ]">
                 <view class="flex justify-between items-center mb-2">
                   <text class="font-bold text-base">{{ item.week }}</text>
                   <text class="text-gray-500 text-sm">{{ item.date }}</text>
-                  <view
-                    v-if="item.level"
-                    :class="[
-                      'px-2 py-1 rounded text-xs font-bold',
-                      item.color === 'green' ? 'bg-green-400 text-white' : '',
-                      item.color === 'yellow' ? 'bg-yellow-400 text-white' : '',
-                      item.color === 'red' ? 'bg-red-400 text-white' : '',
-                    ]"
-                    >{{ item.level }}</view
-                  >
+                  <view v-if="item.level" :class="[
+                    'px-2 py-1 rounded text-xs font-bold',
+                    item.color === 'green' ? 'bg-green-400 text-white' : '',
+                    item.color === 'yellow' ? 'bg-yellow-400 text-white' : '',
+                    item.color === 'red' ? 'bg-red-400 text-white' : '',
+                  ]">{{ item.level }}</view>
                   <view v-else class="text-gray-400">休息日</view>
                 </view>
                 <view v-if="item.type !== '休息日'">
@@ -283,27 +211,22 @@
                     item.desc
                   }}</text>
                   <view class="flex flex-wrap gap-2 mt-1">
-                    <view
-                      v-for="tag in item.tags"
-                      :key="tag"
-                      class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs"
-                      >{{ tag }}</view
-                    >
+                    <view v-for="tag in item.tags" :key="tag"
+                      class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">{{
+                      tag }}</view>
                   </view>
                 </view>
-                <view v-else class="text-center text-gray-400 py-4"
-                  >休息日</view
-                >
+                <view v-else class="text-center text-gray-400 py-4">休息日</view>
               </view>
             </view>
           </view>
         </view>
-        <view v-else>
+        <view v-show="currentTab === 2">
           <!-- 训练趋势内容 -->
           <view class="bg-white rounded-xl shadow-lg mx-4 p-4 mt-8">
             <view class="flex items-center mb-4">
               <text class="i-mdi:chart-line text-xl text-purple-500 mr-2" />
-              <text class="text-xl font-bold">训练趋势</text>
+              <text class="text-lg font-bold">训练趋势</text>
             </view>
             <view class="flex flex-col gap-3">
               <view class="flex justify-between items-center">
@@ -316,9 +239,7 @@
               </view>
               <view class="flex justify-between items-center">
                 <text class="text-sm text-gray-600">最喜欢的训练强度</text>
-                <view class="bg-green-100 text-green-700 px-2 py-1 rounded"
-                  >轻松</view
-                >
+                <view class="bg-green-100 text-green-700 px-2 py-1 rounded">轻松</view>
               </view>
               <view class="flex justify-between items-center">
                 <text class="text-sm text-gray-600">累计消耗卡路里</text>
@@ -326,9 +247,7 @@
               </view>
               <view class="flex justify-between items-center">
                 <text class="text-sm text-gray-600">平均训练时长</text>
-                <text class="text-base font-semibold text-green-600"
-                  >暂无数据</text
-                >
+                <text class="text-base font-semibold text-green-600">暂无数据</text>
               </view>
               <view class="flex justify-between items-center">
                 <text class="text-sm text-gray-600">本月训练频率</text>
@@ -337,8 +256,7 @@
             </view>
           </view>
         </view>
-      </wd-tab>
-    </wd-tabs>
+    </view>
   </view>
 </template>
 
@@ -379,8 +297,8 @@ const achievements = ref([
   },
   {
     title: "高强度训练10次",
-    desc: "已完成 5 次高强度训练",
-    icon: "🦢",
+    desc: "已完成 5 次",
+    icon: "💪",
     iconColor: "text-gray-400",
     progress: 5,
     goal: 10,
@@ -542,6 +460,7 @@ function getDateStr(base: Date, offset: number) {
 :deep(.wd-tabs) {
   background-color: transparent !important;
 }
+
 :deep(.wd-tabs__nav) {
   background-color: transparent !important;
 }

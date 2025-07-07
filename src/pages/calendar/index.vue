@@ -23,34 +23,28 @@
       </view>
       <view>
         <view v-for="(row, rIdx) in calendarRows" :key="rIdx" class="grid grid-cols-7 mb-1 gap-2">
-          <view
-            v-for="(cell, cIdx) in row"
-            :key="cIdx"
-            class="flex items-center justify-center h-96"
-          >
-            <view v-if="cell"
-              :class="[
-                'w-96 h-78 flex flex-col items-center justify-center relative transition-all duration-200',
-                cell.strength === 'easy' && cell.isCurrentMonth ? 'bg-[#e8f5e9] border-2 border-green-500 rounded-xl ring-green-200 ring-2' : '',
-                cell.strength === 'medium' && cell.isCurrentMonth ? 'bg-[#fffde7] border-2 border-yellow-400 rounded-xl ring-yellow-200 ring-2' : '',
-                cell.strength === 'hard' && cell.isCurrentMonth ? 'bg-[#ffebee] border-2 border-red-400 rounded-xl ring-red-200 ring-2' : '',
-                selectedDay.year === year && selectedDay.month === month && selectedDay.day === cell.day && cell.isCurrentMonth ? 'border-2 border-blue-500 rounded-xl bg-white ring-blue-200 ring-2' : '',
-                !cell.isCurrentMonth ? 'text-gray-300' : ''
-              ]"
-              style="box-sizing: border-box;"
-              >
+          <view v-for="(cell, cIdx) in row" :key="cIdx" class="flex items-center justify-center h-96">
+            <view v-if="cell" :class="[
+              'w-96 h-78 flex flex-col items-center justify-center relative transition-all duration-200 rounded-lg',
+              cell.strength === 'easy' && cell.isCurrentMonth ? 'bg-[#e8f5e9]  ring-green-200 ring-2' : '',
+              cell.strength === 'medium' && cell.isCurrentMonth ? 'bg-[#fffde7]  ring-yellow-200 ring-2' : '',
+              cell.strength === 'hard' && cell.isCurrentMonth ? 'bg-[#ffebee]  ring-red-200 ring-2' : '',
+              selectedDay.year === year && selectedDay.month === month && selectedDay.day === cell.day && cell.isCurrentMonth ? ' bg-blue-100' : '',
+              !cell.isCurrentMonth ? 'text-gray-300' : ''
+            ]" style="box-sizing: border-box;">
               <!-- @click="selectDay(cell)" -->
-              <text :class="['font-bold text-base', selectedDay.year === year && selectedDay.month === month && selectedDay.day === cell.day && cell.isCurrentMonth ? 'text-blue-600' : 'text-black']">{{ cell.day }}</text>
+              <text
+                :class="['font-bold text-base', selectedDay.year === year && selectedDay.month === month && selectedDay.day === cell.day && cell.isCurrentMonth ? 'text-blue-600' : 'text-black']">{{
+                cell.day }}</text>
               <!-- 小圆点，8px，绝对定位在数字下方 -->
-              <view v-if="cell.strength && cell.isCurrentMonth" class="absolute left-1/2 -translate-x-1/2" style="top: 32px;">
-                <view
-                  :class="[
-                    'w-8 h-8 rounded-full',
-                    cell.strength === 'easy' ? 'bg-green-500' : '',
-                    cell.strength === 'medium' ? 'bg-yellow-400' : '',
-                    cell.strength === 'hard' ? 'bg-red-500' : ''
-                  ]"
-                ></view>
+              <view v-if="cell.strength && cell.isCurrentMonth" class="absolute left-1/2 -translate-x-1/2"
+                style="top: 36px;">
+                <view :class="[
+                  'w-12 h-12 rounded-full',
+                  cell.strength === 'easy' ? 'bg-green-500' : '',
+                  cell.strength === 'medium' ? 'bg-yellow-400' : '',
+                  cell.strength === 'hard' ? 'bg-red-500' : ''
+                ]"></view>
               </view>
             </view>
           </view>
@@ -60,9 +54,15 @@
 
     <!-- 图例 -->
     <view class="bg-white rounded-2xl shadow mx-4 mt-6 p-4 flex items-center justify-center gap-8">
-      <view class="flex items-center gap-2"><view class="w-16 h-16 rounded-full bg-green-500" /><text class="text-green-700 font-bold">轻松</text></view>
-      <view class="flex items-center gap-2"><view class="w-16 h-16 rounded-full bg-yellow-400" /><text class="text-yellow-700 font-bold">中等</text></view>
-      <view class="flex items-center gap-2"><view class="w-16 h-16 rounded-full bg-red-500" /><text class="text-red-700 font-bold">高强度</text></view>
+      <view class="flex items-center gap-2">
+        <view class="w-16 h-16 rounded-full bg-green-500" /><text class="text-green-500 font-bold">轻松</text>
+      </view>
+      <view class="flex items-center gap-2">
+        <view class="w-16 h-16 rounded-full bg-yellow-400" /><text class="text-yellow-400 font-bold">中等</text>
+      </view>
+      <view class="flex items-center gap-2">
+        <view class="w-16 h-16 rounded-full bg-red-500" /><text class="text-red-500 font-bold">高强度</text>
+      </view>
     </view>
   </view>
 </template>
@@ -95,8 +95,9 @@ const strengthMap: Record<string, string> = {
   '2025-06-22': 'hard',
   '2025-06-29': 'medium',
   '2025-07-03': 'easy',
-  '2025-07-08': 'medium',
-  '2025-07-15': 'hard',
+  '2025-07-04': 'medium',
+  '2025-07-05': 'easy',
+  '2025-07-06': 'hard',
 }
 const recordCount = computed(() => Object.keys(strengthMap).length)
 
@@ -166,7 +167,7 @@ function nextMonth() {
 // }
 </script>
 <style lang="scss" scoped>
-.border_line{
-    border: 1px solid;
+.border_line {
+  border: 1px solid;
 }
 </style>
