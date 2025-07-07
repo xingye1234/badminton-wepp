@@ -31,30 +31,21 @@
             <view v-if="cell"
               :class="[
                 'w-96 h-78 flex flex-col items-center justify-center relative transition-all duration-200',
-                cell.strength === 'easy' && cell.isCurrentMonth ? 'bg-[#e8f5e9] border-2 border-green-300 rounded-xl' : '',
-                cell.strength === 'medium' && cell.isCurrentMonth ? 'bg-[#fffde7] border-2 border-yellow-400 rounded-xl' : '',
-                cell.strength === 'hard' && cell.isCurrentMonth ? 'bg-[#ffebee] border-2 border-red-300 rounded-xl' : '',
-                selectedDay === cell.day && cell.isCurrentMonth ? 'border-2 border-blue-500 rounded-xl ring-2 ring-blue-200' : '',
+                cell.strength === 'easy' && cell.isCurrentMonth ? 'bg-[#e8f5e9] border-2 border-green-500 rounded-xl ring-green-200 ring-2' : '',
+                cell.strength === 'medium' && cell.isCurrentMonth ? 'bg-[#fffde7] border-2 border-yellow-400 rounded-xl ring-yellow-200 ring-2' : '',
+                cell.strength === 'hard' && cell.isCurrentMonth ? 'bg-[#ffebee] border-2 border-red-400 rounded-xl ring-red-200 ring-2' : '',
+                selectedDay.year === year && selectedDay.month === month && selectedDay.day === cell.day && cell.isCurrentMonth ? 'border-2 border-blue-500 rounded-xl bg-white ring-blue-200 ring-2' : '',
                 !cell.isCurrentMonth ? 'text-gray-300' : ''
               ]"
-              @click="selectDay(cell)"
               style="box-sizing: border-box;"
-            >
-              <text :class="['font-bold text-base', selectedDay === cell.day && cell.isCurrentMonth ? 'text-blue-600' : 'text-black']">{{ cell.day }}</text>
-              <view v-if="cell.strength && cell.isCurrentMonth" class="mt-1 flex items-center justify-center">
+              >
+              <!-- @click="selectDay(cell)" -->
+              <text :class="['font-bold text-base', selectedDay.year === year && selectedDay.month === month && selectedDay.day === cell.day && cell.isCurrentMonth ? 'text-blue-600' : 'text-black']">{{ cell.day }}</text>
+              <!-- 小圆点，8px，绝对定位在数字下方 -->
+              <view v-if="cell.strength && cell.isCurrentMonth" class="absolute left-1/2 -translate-x-1/2" style="top: 32px;">
                 <view
                   :class="[
-                    'w-12 h-12 rounded-full',
-                    cell.strength === 'easy' ? 'bg-green-500' : '',
-                    cell.strength === 'medium' ? 'bg-yellow-400' : '',
-                    cell.strength === 'hard' ? 'bg-red-500' : ''
-                  ]"
-                ></view>
-              </view>
-              <view v-if="cell.strength && cell.isCurrentMonth" class="absolute bottom-2 left-1/2 -translate-x-1/2">
-                <view
-                  :class="[
-                    'w-12 h-12 rounded-full',
+                    'w-8 h-8 rounded-full',
                     cell.strength === 'easy' ? 'bg-green-500' : '',
                     cell.strength === 'medium' ? 'bg-yellow-400' : '',
                     cell.strength === 'hard' ? 'bg-red-500' : ''
@@ -83,7 +74,7 @@ const weekList = ['日', '一', '二', '三', '四', '五', '六']
 const today = new Date()
 const year = ref(today.getFullYear())
 const month = ref(today.getMonth()) // 0-based
-const selectedDay = ref(today.getDate())
+const selectedDay = ref({ year: today.getFullYear(), month: today.getMonth(), day: today.getDate() })
 
 // 训练强度数据结构适配任意年月（可对接后端）
 // key为'YYYY-MM-DD'，value为强度
@@ -143,6 +134,11 @@ const calendarRows = computed(() => {
   return rows
 })
 
+function isToday(y: number, m: number) {
+  const now = new Date()
+  return now.getFullYear() === y && now.getMonth() === m
+}
+
 function prevMonth() {
   if (month.value === 0) {
     year.value--
@@ -150,7 +146,9 @@ function prevMonth() {
   } else {
     month.value--
   }
-  selectedDay.value = 1
+  if (isToday(year.value, month.value)) {
+    selectedDay.value = { year: today.getFullYear(), month: today.getMonth(), day: today.getDate() }
+  }
 }
 function nextMonth() {
   if (month.value === 11) {
@@ -159,11 +157,13 @@ function nextMonth() {
   } else {
     month.value++
   }
-  selectedDay.value = 1
+  if (isToday(year.value, month.value)) {
+    selectedDay.value = { year: today.getFullYear(), month: today.getMonth(), day: today.getDate() }
+  }
 }
-function selectDay(cell: any) {
-  if (cell && cell.isCurrentMonth) selectedDay.value = cell.day
-}
+// function selectDay(cell: any) {
+//   if (cell && cell.isCurrentMonth) selectedDay.value = cell.day
+// }
 </script>
 <style lang="scss" scoped>
 .border_line{

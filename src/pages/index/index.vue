@@ -2,7 +2,6 @@
   <view class="bg-[#f6fbff] min-h-screen pb-6">
     <!-- 顶部标题区 -->
     <view class="pt-8 pb-2 flex flex-col items-center">
-      <text class="text-3xl font-bold">羽毛球训练记录</text>
       <text class="text-base text-gray-500 mt-2">坚持训练，成就更好的自己</text>
       <view class="flex items-center mt-1">
         <view class="w-10 h-10 rounded-full bg-green-400 mr-1" />

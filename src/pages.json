@@ -17,21 +17,21 @@
     {
       "path": "pages/statistics/index",
       "style": {
-        "navigationBarTitleText": "统计",
+        "navigationBarTitleText": "训练统计",
         "navigationBarBackgroundColor": "#ffffff"
       }
     },
     {
       "path": "pages/profile/index",
       "style": {
-        "navigationBarTitleText": "个人",
+        "navigationBarTitleText": "个人信息",
         "navigationBarBackgroundColor": "#ffffff"
       }
     },
     {
       "path": "pages/clockIn/index",
       "style": {
-        "navigationBarTitleText": "打卡",
+        "navigationBarTitleText": "训练打卡",
         "navigationBarBackgroundColor": "#ffffff"
       }
     }
