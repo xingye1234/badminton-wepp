@@ -8,13 +8,11 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     MilestoneMask: typeof import('./src/components/MilestoneMask.vue')['default']
-    WdBadge: typeof import('wot-design-uni/components/wd-badge/wd-badge.vue')['default']
     WdButton: typeof import('wot-design-uni/components/wd-button/wd-button.vue')['default']
     WdIcon: typeof import('wot-design-uni/components/wd-icon/wd-icon.vue')['default']
+    WdInput: typeof import('wot-design-uni/components/wd-input/wd-input.vue')['default']
     WdProgress: typeof import('wot-design-uni/components/wd-progress/wd-progress.vue')['default']
     WdSlider: typeof import('wot-design-uni/components/wd-slider/wd-slider.vue')['default']
-    WdTab: typeof import('wot-design-uni/components/wd-tab/wd-tab.vue')['default']
-    WdTabs: typeof import('wot-design-uni/components/wd-tabs/wd-tabs.vue')['default']
     WdToast: typeof import('wot-design-uni/components/wd-toast/wd-toast.vue')['default']
   }
 }
