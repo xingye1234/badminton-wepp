@@ -61,7 +61,7 @@
       <view v-if="!editGoal">
         <view class="flex justify-between items-center mt-3">
           <text class="text-sm text-gray-600">进度</text>
-          <text class="text-sm text-gray-700 font-bold">0 / {{ monthlyGoal }} 天</text>
+          <text class="text-sm text-gray-700 font-bold">{{ stats.totalDays }} / {{ monthlyGoal }} 天</text>
         </view>
         <view class="w-full h-2 bg-gray-100 rounded-full overflow-hidden my-2">
           <view class="h-2 bg-blue-500 rounded-full" :style="`width: ${goalProgress}%`"></view>
@@ -88,11 +88,11 @@
     <!-- 累计统计卡片 -->
     <view class="mx-4 bg-white rounded-xl shadow-lg mt-4 p-4 grid grid-cols-2 gap-3">
       <view class="flex flex-col items-center justify-center py-3 border-r border-gray-100">
-        <text class="text-4xl font-bold text-blue-500">45</text>
+        <text class="text-4xl font-bold text-blue-500">{{ allRecords.length }}</text>
         <text class="text-sm text-gray-500 mt-1">累计打卡</text>
       </view>
       <view class="flex flex-col items-center justify-center py-3">
-        <text class="text-4xl font-bold text-green-500">156h</text>
+        <text class="text-4xl font-bold text-green-500">{{ totalTrainingHours }}h</text>
         <text class="text-sm text-gray-500 mt-1">训练时长</text>
       </view>
     </view>
@@ -155,13 +155,118 @@
   </view>
 </template>
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { onShow } from '@dcloudio/uni-app'
+import { 
+  getAllRecords, 
+  getCurrentMonthStats, 
+  getMonthlyTarget,
+  setMonthlyTarget,
+  ClockInRecord,
+  TrainingStats
+} from '@/utils/storage'
+
 const nickname = ref('羽毛球爱好者')
 const editMode = ref(false)
 const editNickname = ref('羽毛球爱好者')
 const monthlyGoal = ref(20)
 const editMonthlyGoal = ref('20')
 const editGoal = ref(false)
+
+// 训练统计数据
+const stats = ref<TrainingStats>({
+  totalDays: 0,
+  totalDuration: 0,
+  totalCalorie: 0,
+  easyDays: 0,
+  mediumDays: 0,
+  hardDays: 0,
+  easyDuration: 0,
+  mediumDuration: 0,
+  hardDuration: 0,
+  streak: 0,
+  maxStreak: 0
+});
+const allRecords = ref<ClockInRecord[]>([]);
+
+// 计算累计训练时长（小时）
+const totalTrainingHours = computed(() => {
+  const totalMinutes = allRecords.value.reduce((total, record) => total + record.duration, 0);
+  return (totalMinutes / 60).toFixed(1);
+});
+
+// 加载数据
+onMounted(() => {
+  loadData();
+});
+
+// 页面显示时重新加载数据
+onShow(() => {
+  loadData();
+});
+
+function loadData() {
+  // 加载所有记录
+  allRecords.value = getAllRecords();
+  
+  // 加载本月统计
+  stats.value = getCurrentMonthStats();
+  
+  // 加载每月目标天数
+  monthlyGoal.value = getMonthlyTarget();
+  editMonthlyGoal.value = String(monthlyGoal.value);
+  
+  // 更新成就数据
+  updateAchievements();
+}
+
+// 更新成就徽章数据
+function updateAchievements() {
+  // 1. 连续打卡7天
+  achievements.value[0].progress = stats.value.streak;
+  achievements.value[0].progressLabel = `${stats.value.streak}/7`;
+  achievements.value[0].unlocked = stats.value.streak >= 7;
+  achievements.value[0].desc = `当前连续 ${stats.value.streak} 天`;
+  achievements.value[0].iconColor = achievements.value[0].unlocked ? 'text-yellow-500' : 'text-gray-400';
+  
+  // 2. 单月训练20小时
+  const monthlyMinutes = stats.value.totalDuration;
+  const monthlyHours = (monthlyMinutes / 60).toFixed(1);
+  achievements.value[1].progress = monthlyMinutes;
+  achievements.value[1].progressLabel = `${monthlyMinutes}/1200`;
+  achievements.value[1].unlocked = monthlyMinutes >= 1200;
+  achievements.value[1].desc = `本月已训练 ${monthlyHours} 小时`;
+  achievements.value[1].iconColor = achievements.value[1].unlocked ? 'text-yellow-500' : 'text-gray-400';
+  
+  // 3. 高强度训练10次
+  achievements.value[2].progress = stats.value.hardDays;
+  achievements.value[2].progressLabel = `${stats.value.hardDays}/10`;
+  achievements.value[2].unlocked = stats.value.hardDays >= 10;
+  achievements.value[2].desc = `已完成 ${stats.value.hardDays} 次`;
+  achievements.value[2].iconColor = achievements.value[2].unlocked ? 'text-yellow-500' : 'text-gray-400';
+  
+  // 4. 完美一周
+  achievements.value[3].progress = stats.value.maxStreak;
+  achievements.value[3].unlocked = stats.value.maxStreak >= 7;
+  achievements.value[3].desc = `最长连续 ${stats.value.maxStreak} 天！`;
+  achievements.value[3].iconColor = achievements.value[3].unlocked ? 'text-yellow-500' : 'text-gray-400';
+  
+  // 5. 训练达人
+  achievements.value[4].progress = allRecords.value.length;
+  achievements.value[4].progressLabel = `${allRecords.value.length}/30`;
+  achievements.value[4].unlocked = allRecords.value.length >= 30;
+  achievements.value[4].desc = `累计训练 ${allRecords.value.length} 天`;
+  achievements.value[4].iconColor = achievements.value[4].unlocked ? 'text-yellow-500' : 'text-gray-400';
+  
+  // 6. 时间管理大师
+  const totalMinutes = allRecords.value.reduce((total, record) => total + record.duration, 0);
+  const totalHours = (totalMinutes / 60).toFixed(1);
+  achievements.value[5].progress = totalMinutes;
+  achievements.value[5].progressLabel = `${totalMinutes}/3000`;
+  achievements.value[5].unlocked = totalMinutes >= 3000;
+  achievements.value[5].desc = `累计训练 ${totalHours} 小时`;
+  achievements.value[5].iconColor = achievements.value[5].unlocked ? 'text-yellow-500' : 'text-gray-400';
+}
 
 // 成就徽章静态数据
 const achievements = ref([
@@ -187,42 +292,42 @@ const achievements = ref([
   },
   {
     title: "高强度训练10次",
-    desc: "已完成 5 次",
+    desc: "已完成 0 次",
     icon: "💪",
     iconColor: "text-gray-400",
-    progress: 5,
+    progress: 0,
     goal: 10,
-    progressLabel: "5/10",
+    progressLabel: "0/10",
     unlocked: false,
   },
   {
     title: "完美一周",
-    desc: "最长连续 8 天！",
+    desc: "最长连续 0 天！",
     icon: "⭐",
-    iconColor: "text-yellow-500",
-    progress: 8,
+    iconColor: "text-gray-400",
+    progress: 0,
     goal: 7,
-    progressLabel: "✨已解锁",
-    unlocked: true,
+    progressLabel: "0/7",
+    unlocked: false,
   },
   {
     title: "训练达人",
-    desc: "累计训练 11 天",
+    desc: "累计训练 0 天",
     icon: "🏆",
     iconColor: "text-gray-400",
-    progress: 11,
+    progress: 0,
     goal: 30,
-    progressLabel: "11/30",
+    progressLabel: "0/30",
     unlocked: false,
   },
   {
     title: "时间管理大师",
-    desc: "累计训练 13.2 小时",
+    desc: "累计训练 0 小时",
     icon: "⌚",
     iconColor: "text-gray-400",
-    progress: 792, // 13.2小时*60分钟
+    progress: 0,
     goal: 3000, // 50小时*60分钟
-    progressLabel: "792/3000",
+    progressLabel: "0/3000",
     unlocked: false,
   },
 ]);
@@ -236,7 +341,7 @@ const achievementPercent = computed(() =>
 );
 
 const goalProgress = computed(() => {
-  return 0; // 假设当前进度为0，实际应用中这里应该计算实际进度
+  return Math.min(100, Math.round((stats.value.totalDays / monthlyGoal.value) * 100));
 })
 
 function onEdit() {
@@ -254,24 +359,29 @@ function onCancel() {
 }
 
 function saveGoal() {
-  monthlyGoal.value = parseInt(editMonthlyGoal.value) || 20
-  editGoal.value = false
+  const goal = parseInt(editMonthlyGoal.value);
+  if (goal > 0 && goal <= 31) {
+    monthlyGoal.value = goal;
+    setMonthlyTarget(goal);
+    editGoal.value = false;
+  } else {
+    uni.showToast({
+      title: '请输入1-31的有效天数',
+      icon: 'none'
+    });
+  }
 }
 
 function cancelEditGoal() {
-  editMonthlyGoal.value = monthlyGoal.value.toString()
-  editGoal.value = false
+  editMonthlyGoal.value = String(monthlyGoal.value);
+  editGoal.value = false;
 }
 
 function onUploadAvatar() {
-  // 在实际应用中，这里应该调用上传图片的API
-  uni.chooseImage({
-    count: 1,
-    success: (res) => {
-      console.log('选择图片成功:', res.tempFilePaths)
-      // 这里可以处理头像上传
-    }
-  })
+  uni.showToast({
+    title: '功能开发中',
+    icon: 'none'
+  });
 }
 </script>
 <style scoped lang="scss">

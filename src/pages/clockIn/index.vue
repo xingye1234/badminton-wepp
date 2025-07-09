@@ -99,8 +99,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useToast } from 'wot-design-uni';
+import { saveClockInRecord, getRecordByDate, getTodayString } from "@/utils/storage";
 
 const toast = useToast();
 const duration = ref(60);
@@ -126,6 +127,15 @@ const intensityList = [
   },
 ];
 
+// 检查是否已经有今天的记录
+onMounted(() => {
+  const todayRecord = getRecordByDate(getTodayString());
+  if (todayRecord) {
+    duration.value = todayRecord.duration;
+    selectedIntensity.value = todayRecord.intensity;
+  }
+});
+
 const estimateCalorie = computed(() => {
   // 简单估算公式：基础值*时长*强度系数
   const base = 4; // 每分钟基础消耗
@@ -139,15 +149,26 @@ const estimateCalorie = computed(() => {
 });
 
 function handleSubmit() {
-  // 假设有校验逻辑，演示成功和失败
+  // 校验时长
   if (duration.value < 15) {
     toast.error('打卡失败，时长不能小于15分钟');
     return;
   }
+  
+  // 保存打卡数据
+  const record = {
+    date: getTodayString(),
+    duration: duration.value,
+    intensity: selectedIntensity.value as 'easy' | 'medium' | 'hard',
+    calorie: estimateCalorie.value
+  };
+  
+  saveClockInRecord(record);
   toast.success('打卡成功');
+  
   setTimeout(() => {
-    uni.navigateBack()
-  }, 1000)
+    uni.navigateBack();
+  }, 1000);
 }
 </script>
 

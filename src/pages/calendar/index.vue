@@ -31,8 +31,7 @@
               cell.strength === 'hard' && cell.isCurrentMonth ? 'bg-[#ffebee]  ring-red-200 ring-2' : '',
               selectedDay.year === year && selectedDay.month === month && selectedDay.day === cell.day && cell.isCurrentMonth ? ' bg-blue-100' : '',
               !cell.isCurrentMonth ? 'text-gray-300' : ''
-            ]" style="box-sizing: border-box;">
-              <!-- @click="selectDay(cell)" -->
+            ]" style="box-sizing: border-box;" @click="selectDay(cell)">
               <text
                 :class="['font-bold text-base', selectedDay.year === year && selectedDay.month === month && selectedDay.day === cell.day && cell.isCurrentMonth ? 'text-blue-600' : 'text-black']">{{
                 cell.day }}</text>
@@ -64,11 +63,45 @@
         <view class="w-16 h-16 rounded-full bg-red-500" /><text class="text-red-500 font-bold">高强度</text>
       </view>
     </view>
+    
+    <!-- 日期详情弹窗 -->
+    <wd-popup v-model="showDetail" round position="bottom" :style="{ height: '30%' }" @click-overlay="showDetail = false">
+      <view class="p-5">
+        <view class="flex justify-between items-center mb-4">
+          <text class="text-lg font-bold">{{detailDate}}</text>
+          <wd-icon name="close" @click="showDetail = false"></wd-icon>
+        </view>
+        <view v-if="selectedRecord">
+          <view class="flex items-center mb-3">
+            <view class="w-8 h-8 rounded-full mr-3" :class="[
+              selectedRecord.intensity === 'easy' ? 'bg-green-500' : '',
+              selectedRecord.intensity === 'medium' ? 'bg-yellow-400' : '',
+              selectedRecord.intensity === 'hard' ? 'bg-red-500' : '',
+            ]"></view>
+            <text class="font-bold">{{getIntensityLabel(selectedRecord.intensity)}}</text>
+          </view>
+          <view class="flex justify-between mb-2">
+            <text class="text-gray-500">训练时长</text>
+            <text class="font-bold">{{selectedRecord.duration}} 分钟</text>
+          </view>
+          <view class="flex justify-between">
+            <text class="text-gray-500">消耗卡路里</text>
+            <text class="font-bold text-green-600">{{selectedRecord.calorie}} 卡</text>
+          </view>
+        </view>
+        <view v-else class="flex flex-col items-center justify-center py-6">
+          <text class="i-mdi:calendar-blank text-6xl text-gray-200 mb-3"></text>
+          <text class="text-gray-500">这一天还没有训练记录</text>
+        </view>
+      </view>
+    </wd-popup>
   </view>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { onShow } from '@dcloudio/uni-app'
+import { getAllRecords, ClockInRecord, formatDate } from '@/utils/storage'
 
 const weekList = ['日', '一', '二', '三', '四', '五', '六']
 const today = new Date()
@@ -76,34 +109,46 @@ const year = ref(today.getFullYear())
 const month = ref(today.getMonth()) // 0-based
 const selectedDay = ref({ year: today.getFullYear(), month: today.getMonth(), day: today.getDate() })
 
-// 训练强度数据结构适配任意年月（可对接后端）
-// key为'YYYY-MM-DD'，value为强度
-const strengthMap: Record<string, string> = {
-  '2025-05-10': 'easy',
-  '2025-05-15': 'medium',
-  '2025-05-20': 'hard',
-  '2025-06-01': 'medium',
-  '2025-06-09': 'hard',
-  '2025-06-10': 'easy',
-  '2025-06-15': 'hard',
-  '2025-06-16': 'medium',
-  '2025-06-17': 'hard',
-  '2025-06-18': 'easy',
-  '2025-06-19': 'medium',
-  '2025-06-20': 'hard',
-  '2025-06-21': 'medium',
-  '2025-06-22': 'hard',
-  '2025-06-29': 'medium',
-  '2025-07-03': 'easy',
-  '2025-07-04': 'medium',
-  '2025-07-05': 'easy',
-  '2025-07-06': 'hard',
+// 训练数据
+const records = ref<ClockInRecord[]>([])
+const recordCount = computed(() => records.value.length)
+const showDetail = ref(false)
+const selectedRecord = ref<ClockInRecord | null>(null)
+const detailDate = ref('')
+
+// 获取所有记录
+onMounted(() => {
+  loadRecords()
+})
+
+// 页面显示时重新加载数据
+onShow(() => {
+  loadRecords()
+})
+
+function loadRecords() {
+  records.value = getAllRecords()
 }
-const recordCount = computed(() => Object.keys(strengthMap).length)
+
+function getIntensityLabel(intensity: string): string {
+  switch (intensity) {
+    case 'easy': return '轻松训练'
+    case 'medium': return '中等强度'
+    case 'hard': return '高强度训练'
+    default: return '未知强度'
+  }
+}
+
+// 根据日期获取强度
+function getStrengthByDate(dateStr: string): string | null {
+  const record = records.value.find(r => r.date === dateStr)
+  return record ? record.intensity : null
+}
 
 function getDaysInMonth(y: number, m: number) {
   return new Date(y, m + 1, 0).getDate()
 }
+
 function getFirstDayOfWeek(y: number, m: number) {
   return new Date(y, m, 1).getDay()
 }
@@ -120,7 +165,7 @@ const calendarRows = computed(() => {
     row.push({
       day: d,
       isCurrentMonth: true,
-      strength: strengthMap[dateStr] || null
+      strength: getStrengthByDate(dateStr)
     })
     if (row.length === 7) {
       rows.push(row)
@@ -151,6 +196,7 @@ function prevMonth() {
     selectedDay.value = { year: today.getFullYear(), month: today.getMonth(), day: today.getDate() }
   }
 }
+
 function nextMonth() {
   if (month.value === 11) {
     year.value++
@@ -162,9 +208,25 @@ function nextMonth() {
     selectedDay.value = { year: today.getFullYear(), month: today.getMonth(), day: today.getDate() }
   }
 }
-// function selectDay(cell: any) {
-//   if (cell && cell.isCurrentMonth) selectedDay.value = cell.day
-// }
+
+function selectDay(cell: any) {
+  if (cell && cell.isCurrentMonth) {
+    selectedDay.value = { 
+      year: year.value, 
+      month: month.value, 
+      day: cell.day 
+    }
+    
+    // 格式化日期并查找记录
+    const date = new Date(year.value, month.value, cell.day)
+    const dateStr = formatDate(date)
+    detailDate.value = `${year.value}年${month.value + 1}月${cell.day}日`
+    
+    // 查找该日期的记录
+    selectedRecord.value = records.value.find(r => r.date === dateStr) || null
+    showDetail.value = true
+  }
+}
 </script>
 <style lang="scss" scoped>
 .border_line {

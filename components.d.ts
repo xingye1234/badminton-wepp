@@ -10,7 +10,7 @@ declare module 'vue' {
     MilestoneMask: typeof import('./src/components/MilestoneMask.vue')['default']
     WdButton: typeof import('wot-design-uni/components/wd-button/wd-button.vue')['default']
     WdIcon: typeof import('wot-design-uni/components/wd-icon/wd-icon.vue')['default']
-    WdInput: typeof import('wot-design-uni/components/wd-input/wd-input.vue')['default']
+    WdPopup: typeof import('wot-design-uni/components/wd-popup/wd-popup.vue')['default']
     WdProgress: typeof import('wot-design-uni/components/wd-progress/wd-progress.vue')['default']
     WdSlider: typeof import('wot-design-uni/components/wd-slider/wd-slider.vue')['default']
     WdToast: typeof import('wot-design-uni/components/wd-toast/wd-toast.vue')['default']

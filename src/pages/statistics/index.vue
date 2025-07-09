@@ -116,10 +116,12 @@
           <view class="bg-blue-50 rounded-lg p-4">
             <view class="flex items-center mb-2">
               <text class="i-mdi:lightbulb-on text-lg text-blue-500 mr-2" />
-              <text class="font-bold text-blue-600 text-base">开始你的训练之旅</text>
+              <text class="font-bold text-blue-600 text-base" v-if="stats.totalDays === 0">开始你的训练之旅</text>
+              <text class="font-bold text-blue-600 text-base" v-else>训练分析与建议</text>
             </view>
-            <text class="text-sm text-gray-700 mb-3 block">本月还没有训练记录，建议制定一个合理的训练计划。</text>
-            <view class="bg-white rounded-lg p-3 space-y-2">
+            <text class="text-sm text-gray-700 mb-3 block" v-if="stats.totalDays === 0">本月还没有训练记录，建议制定一个合理的训练计划。</text>
+            <text class="text-sm text-gray-700 mb-3 block" v-else>本月已完成 {{stats.totalDays}} 次训练，以下是针对你的训练数据的个性化建议。</text>
+            <view class="bg-white rounded-lg p-3 space-y-2" v-if="stats.totalDays === 0">
               <view class="flex items-center">
                 <text class="i-mdi:check-circle text-green-500 mr-2"></text>
                 <text class="text-sm text-gray-700">每周安排3-4次训练</text>
@@ -137,6 +139,55 @@
                 <text class="text-sm text-gray-700">保持规律的训练节奏</text>
               </view>
             </view>
+            <view class="bg-white rounded-lg p-3 space-y-2" v-else>
+              <!-- 针对训练次数的建议 -->
+              <view class="flex items-center" v-if="stats.totalDays < 8">
+                <text class="i-mdi:trending-up text-blue-500 mr-2"></text>
+                <text class="text-sm text-gray-700">建议增加训练频率，每周至少安排3-4次训练</text>
+              </view>
+              <view class="flex items-center" v-else-if="stats.totalDays >= 15">
+                <text class="i-mdi:shield-check text-green-500 mr-2"></text>
+                <text class="text-sm text-gray-700">训练频率优秀，注意保持适当休息，避免过度训练</text>
+              </view>
+              <view class="flex items-center" v-else>
+                <text class="i-mdi:thumb-up text-green-500 mr-2"></text>
+                <text class="text-sm text-gray-700">训练频率良好，保持稳定性</text>
+              </view>
+              
+              <!-- 针对训练时长的建议 -->
+              <view class="flex items-center" v-if="stats.totalDuration / stats.totalDays < 45">
+                <text class="i-mdi:clock-plus text-yellow-500 mr-2"></text>
+                <text class="text-sm text-gray-700">单次训练时间偏短，建议延长至45-60分钟</text>
+              </view>
+              <view class="flex items-center" v-else-if="stats.totalDuration / stats.totalDays > 120">
+                <text class="i-mdi:clock-alert text-orange-500 mr-2"></text>
+                <text class="text-sm text-gray-700">单次训练时间较长，注意强度控制和充分休息</text>
+              </view>
+              <view class="flex items-center" v-else>
+                <text class="i-mdi:check-circle text-green-500 mr-2"></text>
+                <text class="text-sm text-gray-700">训练时长合理，保持良好节奏</text>
+              </view>
+              
+              <!-- 针对训练强度的建议 -->
+              <view class="flex items-center" v-if="favoriteIntensity === 'easy'">
+                <text class="i-mdi:trending-up text-blue-500 mr-2"></text>
+                <text class="text-sm text-gray-700">可以尝试适当增加中等强度训练，提升训练效果</text>
+              </view>
+              <view class="flex items-center" v-else-if="favoriteIntensity === 'hard'">
+                <text class="i-mdi:shield-half-full text-orange-500 mr-2"></text>
+                <text class="text-sm text-gray-700">高强度训练占比较高，注意恢复和伤病预防</text>
+              </view>
+              <view class="flex items-center" v-else>
+                <text class="i-mdi:check-circle text-green-500 mr-2"></text>
+                <text class="text-sm text-gray-700">训练强度分配合理，继续保持</text>
+              </view>
+              
+              <!-- 针对连续训练的建议 -->
+              <view class="flex items-center" v-if="stats.streak >= 5">
+                <text class="i-mdi:fire text-red-500 mr-2"></text>
+                <text class="text-sm text-gray-700">连续训练{{stats.streak}}天，注意安排休息日，避免过度训练</text>
+              </view>
+            </view>
           </view>
         </view>
       </view>
@@ -148,7 +199,7 @@
               <text class="i-mdi:calendar text-xl text-purple-500 mr-2" />
               <text class="text-lg font-bold">下周训练计划</text>
             </view>
-            <wd-button type="primary" size="small" @click="generatePlan" v-show="!showPlan">生成计划</wd-button>
+            <!-- <wd-button type="primary" size="small" @click="generatePlan" v-show="!showPlan">生成计划</wd-button> -->
           </view>
           <view v-if="!showPlan" class="flex flex-col items-center justify-center py-10">
             <text class="i-mdi:calendar-outline text-6xl text-gray-200 mb-4" />
@@ -216,7 +267,10 @@
                 </view>
                 <text class="text-sm text-gray-700">周平均训练时长</text>
               </view>
-              <text class="text-base font-medium text-gray-800">暂无数据</text>
+              <text class="text-base font-medium text-gray-800" v-if="stats.totalDays > 0">
+                {{ (stats.totalDuration / Math.ceil(stats.totalDays / 7)).toFixed(0) }}分钟
+              </text>
+              <text class="text-base font-medium text-gray-800" v-else>暂无数据</text>
             </view>
             <view class="flex justify-between items-center py-3">
               <view class="flex items-center">
@@ -225,7 +279,7 @@
                 </view>
                 <text class="text-sm text-gray-700">最长连续打卡</text>
               </view>
-              <text class="text-base font-medium text-green-600">8天</text>
+              <text class="text-base font-medium text-green-600">{{stats.maxStreak}}天</text>
             </view>
             <view class="flex justify-between items-center py-3">
               <view class="flex items-center">
@@ -234,7 +288,15 @@
                 </view>
                 <text class="text-sm text-gray-700">最喜欢的训练强度</text>
               </view>
-              <view class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">轻松</view>
+              <view v-if="favoriteIntensity" :class="[
+                'px-2 py-1 rounded-full text-xs font-medium',
+                favoriteIntensity === 'easy' ? 'bg-green-100 text-green-700' : '',
+                favoriteIntensity === 'medium' ? 'bg-yellow-100 text-yellow-700' : '',
+                favoriteIntensity === 'hard' ? 'bg-red-100 text-red-700' : '',
+              ]">
+                {{ favoriteIntensity === 'easy' ? '轻松' : favoriteIntensity === 'medium' ? '中等' : '高强度' }}
+              </view>
+              <view v-else class="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">暂无数据</view>
             </view>
             <view class="flex justify-between items-center py-3">
               <view class="flex items-center">
@@ -243,7 +305,7 @@
                 </view>
                 <text class="text-sm text-gray-700">累计消耗卡路里</text>
               </view>
-              <text class="text-base font-medium text-orange-600">3950卡</text>
+              <text class="text-base font-medium text-orange-600">{{stats.totalCalorie}}卡</text>
             </view>
             <view class="flex justify-between items-center py-3">
               <view class="flex items-center">
@@ -271,118 +333,158 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
-// 静态 mock 数据，后续可替换为接口数据
-const monthDays = ref(0);
-const monthHours = ref(0);
-const monthCalories = ref(0);
-const easyHours = ref(0);
-const easyDays = ref(0);
-const mediumHours = ref(0);
-const mediumDays = ref(0);
-const hardHours = ref(0);
-const hardDays = ref(0);
+import { ref, computed, watch, onMounted } from 'vue'
+import { onShow } from '@dcloudio/uni-app'
+import { 
+  getCurrentMonthStats, 
+  getMonthStats,
+  ClockInRecord,
+  TrainingStats,
+  getAllRecords,
+} from '@/utils/storage'
 
-// Tab切换
-interface TabChangeEvent {
-  index: number;
-  [key: string]: any;
-}
-const tabs = [{ name: "训练建议" }, { name: "训练计划" }, { name: "训练趋势" }];
-const currentTab = ref(0);
-function onTabChange(e: TabChangeEvent) {
-  currentTab.value = e.index;
+const tabs = [
+  { name: '训练建议' },
+  { name: '训练计划' },
+  { name: '训练趋势' }
+]
+const currentTab = ref(0)
+
+// 统计数据
+const stats = ref<TrainingStats>({
+  totalDays: 0,
+  totalDuration: 0,
+  totalCalorie: 0,
+  easyDays: 0,
+  mediumDays: 0,
+  hardDays: 0,
+  easyDuration: 0,
+  mediumDuration: 0,
+  hardDuration: 0,
+  streak: 0,
+  maxStreak: 0
+});
+
+// 转换为小时显示
+const monthDays = computed(() => stats.value.totalDays)
+const monthHours = computed(() => (stats.value.totalDuration / 60).toFixed(1))
+const monthCalories = computed(() => stats.value.totalCalorie)
+
+const easyDays = computed(() => stats.value.easyDays)
+const mediumDays = computed(() => stats.value.mediumDays)
+const hardDays = computed(() => stats.value.hardDays)
+
+const easyHours = computed(() => (stats.value.easyDuration / 60).toFixed(1))
+const mediumHours = computed(() => (stats.value.mediumDuration / 60).toFixed(1))
+const hardHours = computed(() => (stats.value.hardDuration / 60).toFixed(1))
+
+// 获取最喜欢的训练强度
+const favoriteIntensity = computed(() => {
+  const intensities = [
+    { type: 'easy', days: stats.value.easyDays },
+    { type: 'medium', days: stats.value.mediumDays },
+    { type: 'hard', days: stats.value.hardDays }
+  ]
+  
+  // 按天数排序
+  intensities.sort((a, b) => b.days - a.days)
+  
+  // 如果有记录，返回最多的那个强度，否则返回null
+  return intensities[0]?.days > 0 ? intensities[0].type : null
+})
+
+// 加载数据
+onMounted(() => {
+  loadData()
+})
+
+// 页面显示时重新加载数据
+onShow(() => {
+  loadData()
+})
+
+function loadData() {
+  // 加载本月统计
+  stats.value = getCurrentMonthStats()
 }
 
-// 训练计划相关
-const showPlan = ref(false);
-const weekPlan = ref<any[]>([]);
+// 周训练计划
+const showPlan = ref(false)
+const weekPlan = [
+  {
+    week: '周一',
+    date: '5月20日',
+    level: '轻松',
+    type: '基础步法训练',
+    duration: 60,
+    color: 'green',
+    desc: '专注基础步法练习，巩固移动能力',
+    tags: ['步法', '基础', '移动能力']
+  },
+  {
+    week: '周二',
+    date: '5月21日',
+    level: '',
+    type: '休息日',
+    duration: 0,
+    color: 'gray',
+    desc: '',
+    tags: []
+  },
+  {
+    week: '周三',
+    date: '5月22日',
+    level: '中等',
+    type: '击球技术训练',
+    duration: 80,
+    color: 'yellow',
+    desc: '专注高远球和网前球的技术训练',
+    tags: ['高远球', '网前球', '技术']
+  },
+  {
+    week: '周四',
+    date: '5月23日',
+    level: '轻松',
+    type: '恢复性训练',
+    duration: 45,
+    color: 'green',
+    desc: '轻松训练，恢复肌肉',
+    tags: ['恢复', '技术练习']
+  },
+  {
+    week: '周五',
+    date: '5月24日',
+    level: '高强度',
+    type: '比赛训练',
+    duration: 90,
+    color: 'red',
+    desc: '模拟比赛环境，提高实战能力',
+    tags: ['比赛', '实战', '战术']
+  },
+  {
+    week: '周六',
+    date: '5月25日',
+    level: '',
+    type: '休息日',
+    duration: 0,
+    color: 'gray',
+    desc: '',
+    tags: []
+  },
+  {
+    week: '周日',
+    date: '5月26日',
+    level: '中等',
+    type: '综合训练',
+    duration: 70,
+    color: 'yellow',
+    desc: '综合技术训练，注重连贯性',
+    tags: ['综合', '连贯性', '灵活性']
+  }
+]
 
 function generatePlan() {
-  // 生成7天计划，日期为下周一到周日
-  const today = new Date();
-  const day = today.getDay() || 7; // 周日为0，转为7
-  const nextMonday = new Date(today);
-  nextMonday.setDate(today.getDate() + (8 - day));
-  const planList = [
-    {
-      week: "周一",
-      date: getDateStr(nextMonday, 0),
-      type: "技术训练",
-      duration: 45,
-      level: "轻松",
-      desc: "专注于基本技术动作的练习和改进",
-      tags: ["发球练习", "正反手挥拍", "步法训练", "网前技术"],
-      color: "green",
-    },
-    {
-      week: "周二",
-      date: getDateStr(nextMonday, 1),
-      type: "体能训练",
-      duration: 60,
-      level: "中等",
-      desc: "提升身体素质和运动能力",
-      tags: ["有氧耐力", "爆发力训练", "敏捷性练习", "核心力量"],
-      color: "yellow",
-    },
-    {
-      week: "周三",
-      date: getDateStr(nextMonday, 2),
-      type: "基础训练",
-      duration: 45,
-      level: "轻松",
-      desc: "基础动作和体能的入门训练",
-      tags: ["基本动作", "体能基础", "规则学习", "兴趣培养"],
-      color: "green",
-    },
-    {
-      week: "周四",
-      date: getDateStr(nextMonday, 3),
-      type: "专项训练",
-      duration: 60,
-      level: "高强度",
-      desc: "针对薄弱环节进行专项提升",
-      tags: ["后场高远球", "杀球练习", "防守反击", "体能冲刺"],
-      color: "red",
-    },
-    {
-      week: "周五",
-      date: getDateStr(nextMonday, 4),
-      type: "实战演练",
-      duration: 60,
-      level: "中等",
-      desc: "模拟比赛，提升实战能力",
-      tags: ["对抗练习", "战术演练", "临场应变"],
-      color: "yellow",
-    },
-    {
-      week: "周六",
-      date: getDateStr(nextMonday, 5),
-      type: "恢复训练",
-      duration: 45,
-      level: "轻松",
-      desc: "拉伸放松，身体恢复",
-      tags: ["拉伸", "放松", "低强度活动"],
-      color: "green",
-    },
-    {
-      week: "周日",
-      date: getDateStr(nextMonday, 6),
-      type: "休息日",
-      duration: 0,
-      level: "",
-      desc: "休息日",
-      tags: [],
-      color: "gray",
-    },
-  ];
-  weekPlan.value = planList;
-  showPlan.value = true;
-}
-function getDateStr(base: Date, offset: number) {
-  const d = new Date(base);
-  d.setDate(base.getDate() + offset);
-  return `${d.getMonth() + 1}月${d.getDate()}日`;
+  showPlan.value = true
 }
 </script>
 
