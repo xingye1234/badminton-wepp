@@ -1,8 +1,8 @@
 <template>
   <view class="min-h-screen bg-[#f6fbff] pb-6 box-border overflow-hidden">
 
-    <!-- 顶部渐变背景 -->
-    <view class="w-full bg-gradient-to-r from-blue-500 to-green-400 pt-12 pb-16 px-4">
+    <!-- 顶部渐变背景改为动态渐变 -->
+    <view class="w-full gradient-animation pt-12 pb-16 px-4">
       <view class="flex items-center">
         <text class="i-mdi:account-circle text-2xl text-white mr-2" />
         <text class="text-xl text-white font-bold">个人信息</text>
@@ -12,7 +12,7 @@
     <!-- 个人信息卡片 -->
     <view class="mx-4 -mt-12 bg-white rounded-xl shadow-lg p-5 flex items-center relative">
       <view class="relative">
-        <view class="w-120 h-120 rounded-full bg-gradient-to-br from-blue-400 to-green-400 flex items-center justify-center text-white text-2xl font-bold border-4 border-white shadow-lg mb-2">
+        <view class="w-120 h-120 rounded-full pulse-glow flex items-center justify-center text-white text-2xl font-bold border-4 border-white shadow-lg mb-2">
           <text v-if="!editMode">{{ nickname.charAt(0) }}</text>
           <text v-else class="i-mdi:camera text-3xl"></text>
           <!-- 编辑图标 -->
@@ -32,10 +32,10 @@
           </template>
         </view>
         <view class="flex items-center mb-2">
-          <text class="i-mdi:calendar text-gray-400 mr-1" />
+          <text class="i-mdi:calendar-check text-green-500 mr-1" />
           <text class="text-xs text-gray-500">加入时间: 2025/7/8</text>
         </view>
-        <view class="px-3 py-1 bg-green-100 rounded-full w-fit">
+        <view class="px-3 py-1 dynamic-badge rounded-full w-fit">
           <text class="text-xs text-green-600 font-medium">活跃用户</text>
         </view>
         
@@ -61,14 +61,19 @@
       <view v-if="!editGoal">
         <view class="flex justify-between items-center mt-3">
           <text class="text-sm text-gray-600">进度</text>
-          <text class="text-sm text-gray-700 font-bold">{{ stats.totalDays }} / {{ monthlyGoal }} 天</text>
+          <view class="flex items-center">
+            <text class="text-2xl font-bold" :class="progressTextColor">{{ stats.totalDays }}</text>
+            <text class="text-sm text-gray-700 ml-1">天</text>
+            <text class="i-mdi:calendar-month text-sm text-blue-500 ml-2"></text>
+            <text class="text-xs text-gray-500 ml-1">/ {{ monthlyGoal }} 天</text>
+          </view>
         </view>
-        <view class="w-full h-2 bg-gray-100 rounded-full overflow-hidden my-2">
-          <view class="h-2 bg-blue-500 rounded-full" :style="`width: ${goalProgress}%`"></view>
+        <view class="w-full h-30 rainbow-progress-bg rounded-full overflow-hidden my-3 relative">
+          <view class="h-30 rainbow-progress-fill rounded-full shimmer-effect" :style="`width: ${goalProgress}%`"></view>
         </view>
         <view class="flex justify-between items-center">
-          <text class="text-sm text-gray-600">完成率</text>
-          <text class="text-sm text-blue-500 font-bold">{{ goalProgress }}%</text>
+          <text class="text-sm text-gray-600">目标完成</text>
+          <text class="text-sm font-bold" :class="progressTextColor">{{ motivationalMessage }}</text>
         </view>
       </view>
       
@@ -87,32 +92,89 @@
 
     <!-- 累计统计卡片 -->
     <view class="mx-4 bg-white rounded-xl shadow-lg mt-4 p-4 grid grid-cols-2 gap-3">
-      <view class="flex flex-col items-center justify-center py-3 border-r border-gray-100">
-        <text class="text-4xl font-bold text-blue-500">{{ allRecords.length }}</text>
-        <text class="text-sm text-gray-500 mt-1">累计打卡</text>
+      <view class="flex flex-col items-center justify-center py-3 relative" @click="toggleRecordDetail('checkin')">
+        <view class="circle-progress-container">
+          <view class="circle-progress" :style="`--percent: ${circleProgressPercent}%`"></view>
+          <view class="circle-content flex flex-col items-center justify-center">
+            <text class="text-4xl font-bold text-blue-500 number-animation">{{ allRecords.length }}</text>
+            <text class="text-xs text-gray-500">/ {{ monthlyGoal }}</text>
+          </view>
+        </view>
+        <text class="text-sm text-gray-500 mt-3">累计打卡</text>
+        <view class="absolute right-0 top-0 text-xs text-blue-500">
+          <text class="i-mdi:chevron-down" v-if="!showCheckinDetail"></text>
+          <text class="i-mdi:chevron-up" v-if="showCheckinDetail"></text>
+        </view>
       </view>
-      <view class="flex flex-col items-center justify-center py-3">
-        <text class="text-4xl font-bold text-green-500">{{ totalTrainingHours }}h</text>
-        <text class="text-sm text-gray-500 mt-1">训练时长</text>
+      <view class="flex flex-col items-center justify-center py-3 relative" @click="toggleRecordDetail('duration')">
+        <view class="bar-chart-container">
+          <view class="bar-chart" :style="`--height: ${barChartHeight}%`"></view>
+          <text class="text-4xl font-bold text-green-500 number-animation">{{ totalTrainingHours }}h</text>
+        </view>
+        <text class="text-sm text-gray-500 mt-3">训练时长</text>
+        <view class="absolute right-0 top-0 text-xs text-blue-500">
+          <text class="i-mdi:chevron-down" v-if="!showDurationDetail"></text>
+          <text class="i-mdi:chevron-up" v-if="showDurationDetail"></text>
+        </view>
+      </view>
+      
+      <!-- 打卡详细记录 -->
+      <view v-if="showCheckinDetail" class="col-span-2 bg-gray-50 p-3 rounded-lg mt-2 max-h-60 overflow-auto">
+        <view class="text-sm font-bold mb-2">最近打卡记录</view>
+        <view v-for="(record, idx) in recentRecords" :key="idx" class="flex justify-between items-center py-2 border-b border-gray-100">
+          <view class="flex items-center">
+            <text class="i-mdi:calendar-check text-green-500 mr-2"></text>
+            <text class="text-xs">{{ formatDate(record.date) }}</text>
+          </view>
+          <view class="flex items-center">
+            <text class="text-xs text-gray-500">{{ record.duration }}分钟</text>
+            <view class="ml-2 px-2 py-1 rounded-full text-xs" :class="getIntensityClass(record.intensity)">
+              {{ getIntensityText(record.intensity) }}
+            </view>
+          </view>
+        </view>
+        <view v-if="recentRecords.length === 0" class="text-center py-4 text-gray-400">
+          暂无打卡记录
+        </view>
+      </view>
+      
+      <!-- 时长详细记录 -->
+      <view v-if="showDurationDetail" class="col-span-2 bg-gray-50 p-3 rounded-lg mt-2 max-h-60 overflow-auto">
+        <view class="text-sm font-bold mb-2">训练时长统计</view>
+        <view class="flex justify-around items-center py-3">
+          <view class="flex flex-col items-center">
+            <text class="text-lg font-bold text-blue-500">{{ stats.easyDuration / 60 | toFixed(1) }}h</text>
+            <text class="text-xs text-gray-500">轻松训练</text>
+          </view>
+          <view class="flex flex-col items-center">
+            <text class="text-lg font-bold text-yellow-500">{{ stats.mediumDuration / 60 | toFixed(1) }}h</text>
+            <text class="text-xs text-gray-500">中等训练</text>
+          </view>
+          <view class="flex flex-col items-center">
+            <text class="text-lg font-bold text-red-500">{{ stats.hardDuration / 60 | toFixed(1) }}h</text>
+            <text class="text-xs text-gray-500">高强训练</text>
+          </view>
+        </view>
       </view>
     </view>
 
     <!-- 成就徽章模块 -->
-    <view class="mx-4 bg-white rounded-xl shadow-lg mt-4 p-5">
+    <view class="mx-4 bg-white rounded-xl shadow-lg mt-4 p-5 achievement-container">
       <view class="flex items-center justify-between mb-4">
         <view class="flex items-center">
           <text class="i-mdi:medal text-xl text-yellow-500 mr-2" />
           <text class="text-lg font-bold">成就徽章</text>
         </view>
-        <view class="px-2 py-1 bg-yellow-100 rounded-full">
-          <text class="text-xs text-yellow-700">{{ unlocked }}/{{ achievements.length }}</text>
+        <view class="px-2 py-1 bg-yellow-100 rounded-full relative achievement-progress-ring">
+          <view class="achievement-progress" :style="`--percent: ${achievementPercent}%`"></view>
+          <text class="text-xs text-yellow-700 relative z-10">{{ unlocked }}/{{ achievements.length }}</text>
         </view>
       </view>
       <view class="grid grid-cols-2 gap-4 mb-4">
         <view v-for="(item, idx) in achievements" :key="item.title" :class="[
           'rounded-lg p-4 flex flex-col justify-center items-center min-h-[120px] shadow-sm transition-all',
           item.unlocked
-            ? 'bg-yellow-50 border-l-4 border-yellow-400'
+            ? 'bg-yellow-50 border-l-4 border-yellow-400 unlocked-achievement'
             : 'bg-gray-50 border-l-4 border-gray-200',
         ]">
           <view class="flex items-center mb-2 flex-col">
@@ -125,7 +187,7 @@
           </view>
           <text class="text-xs text-gray-500 my-2 text-center">{{ item.desc }}</text>
           <template v-if="item.unlocked">
-            <text class="text-xs text-yellow-600 font-bold">✨已解锁</text>
+            <text class="text-xs text-yellow-600 font-bold achievement-unlock">✨已解锁</text>
           </template>
           <template v-else>
             <wd-progress :percentage="Math.round((item.progress / item.goal) * 100)" stroke-width="8" color="#3b82f6"
@@ -133,6 +195,7 @@
             <text class="text-xs text-gray-500 font-medium">{{
               item.progressLabel
             }}</text>
+            <text class="text-xs text-blue-500 mt-1">{{ getAchievementTip(item) }}</text>
           </template>
         </view>
       </view>
@@ -141,7 +204,7 @@
         <text class="font-medium text-yellow-700 mr-3 text-sm w-2/7">完成度</text>
         <wd-progress :percentage="achievementPercent" stroke-width="8" color="#3b82f6" track-color="#f3f4f6"
           :show-text="false" class="flex-1" hide-text custom-class="progress" />
-        <text class="text-lg font-bold text-yellow-600 ml-4">{{ achievementPercent }}%</text>
+        <text class="text-lg font-bold text-yellow-600 ml-4 number-animation">{{ achievementPercent }}%</text>
       </view>
     </view>
 
@@ -172,6 +235,28 @@ const editNickname = ref('羽毛球爱好者')
 const monthlyGoal = ref(20)
 const editMonthlyGoal = ref('20')
 const editGoal = ref(false)
+
+// 新增变量
+const showCheckinDetail = ref(false)
+const showDurationDetail = ref(false)
+const recentRecords = ref<ClockInRecord[]>([])
+const circleProgressPercent = computed(() => Math.min(100, Math.round((allRecords.value.length / monthlyGoal.value) * 100)))
+const barChartHeight = computed(() => Math.min(100, parseInt(totalTrainingHours.value) * 10))
+
+// 动态文案和样式计算
+const progressTextColor = computed(() => {
+  if (goalProgress.value < 30) return 'text-red-500'
+  if (goalProgress.value < 70) return 'text-yellow-500'
+  return 'text-green-500'
+})
+
+const motivationalMessage = computed(() => {
+  const remaining = monthlyGoal.value - stats.value.totalDays
+  if (remaining <= 0) return '目标已完成！'
+  if (goalProgress.value < 30) return `再坚持 ${remaining} 天！`
+  if (goalProgress.value < 70) return `继续努力，还差 ${remaining} 天`
+  return `即将完成，还差 ${remaining} 天！`
+})
 
 // 训练统计数据
 const stats = ref<TrainingStats>({
@@ -218,6 +303,9 @@ function loadData() {
   
   // 更新成就数据
   updateAchievements();
+  
+  // 加载最近打卡记录
+  recentRecords.value = [...allRecords.value].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 10);
 }
 
 // 更新成就徽章数据
@@ -344,6 +432,62 @@ const goalProgress = computed(() => {
   return Math.min(100, Math.round((stats.value.totalDays / monthlyGoal.value) * 100));
 })
 
+// 新增方法
+function toggleRecordDetail(type: 'checkin' | 'duration') {
+  if (type === 'checkin') {
+    showCheckinDetail.value = !showCheckinDetail.value;
+    if (showDurationDetail.value) showDurationDetail.value = false;
+  } else {
+    showDurationDetail.value = !showDurationDetail.value;
+    if (showCheckinDetail.value) showCheckinDetail.value = false;
+  }
+}
+
+function formatDate(dateStr: string): string {
+  const date = new Date(dateStr);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
+function getIntensityClass(intensity: string): string {
+  switch (intensity) {
+    case 'easy': return 'bg-blue-100 text-blue-600';
+    case 'medium': return 'bg-yellow-100 text-yellow-600';
+    case 'hard': return 'bg-red-100 text-red-600';
+    default: return 'bg-gray-100 text-gray-600';
+  }
+}
+
+function getIntensityText(intensity: string): string {
+  switch (intensity) {
+    case 'easy': return '轻松';
+    case 'medium': return '适中';
+    case 'hard': return '强烈';
+    default: return '未知';
+  }
+}
+
+function getAchievementTip(item: any): string {
+  const remaining = item.goal - item.progress;
+  if (remaining <= 0) return '';
+  
+  switch (item.title) {
+    case '连续打卡7天':
+      return `再连续打卡 ${remaining} 天解锁`;
+    case '单月训练20小时':
+      return `还需训练 ${(remaining / 60).toFixed(1)} 小时`;
+    case '高强度训练10次':
+      return `还需 ${remaining} 次高强度训练`;
+    case '完美一周':
+      return `连续打卡满 ${remaining} 天解锁`;
+    case '训练达人':
+      return `还差 ${remaining} 天`;
+    case '时间管理大师':
+      return `还需累计 ${(remaining / 60).toFixed(1)} 小时`;
+    default:
+      return '';
+  }
+}
+
 function onEdit() {
   editNickname.value = nickname.value
   editMode.value = true
@@ -393,5 +537,259 @@ function onUploadAvatar() {
 :deep(.progress .wd-progress__inner) {
   height: 8px !important;
   border-radius: 4px !important;
+}
+
+/* 动态渐变背景 */
+.gradient-animation {
+  background: linear-gradient(-45deg, #4f46e5, #38bdf8, #22c55e, #10b981);
+  background-size: 400% 400%;
+  animation: gradient 8s ease infinite;
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* 头像发光效果 */
+.pulse-glow {
+  background: linear-gradient(135deg, #4ade80, #3b82f6);
+  box-shadow: 0 0 15px rgba(74, 222, 128, 0.6);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 10px rgba(74, 222, 128, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(59, 130, 246, 0.8);
+  }
+  100% {
+    box-shadow: 0 0 10px rgba(74, 222, 128, 0.6);
+  }
+}
+
+/* 活跃用户标签动画 */
+.dynamic-badge {
+  background: linear-gradient(to right, #dcfce7, #d1fae5);
+  animation: badge-pulse 3s infinite;
+}
+
+@keyframes badge-pulse {
+  0% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.8;
+  }
+}
+
+/* 彩虹进度条 */
+.rainbow-progress-bg {
+  background: #f1f5f9;
+}
+
+.rainbow-progress-fill {
+  background: linear-gradient(to right, #ef4444, #f97316, #eab308, #22c55e);
+  background-size: 300% 100%;
+  animation: rainbow-move 3s linear infinite;
+}
+
+.shimmer-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-effect::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, 0.2) 20%,
+    rgba(255, 255, 255, 0.5) 60%,
+    rgba(255, 255, 255, 0)
+  );
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes rainbow-move {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* 环形进度条 */
+.circle-progress-container {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: #f1f5f9;
+}
+
+.circle-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: conic-gradient(#3b82f6 0% var(--percent), transparent var(--percent) 100%);
+  mask: radial-gradient(transparent 55%, black 55%);
+  -webkit-mask: radial-gradient(transparent 55%, black 55%);
+}
+
+.circle-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* 柱状图 */
+.bar-chart-container {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bar-chart {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: var(--height);
+  max-height: 100%;
+  border-radius: 5px 5px 0 0;
+  background: linear-gradient(to top, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.8));
+  z-index: -1;
+}
+
+/* 成就徽章样式 */
+.achievement-container {
+  position: relative;
+}
+
+.achievement-progress-ring {
+  position: relative;
+  overflow: hidden;
+}
+
+.achievement-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: var(--percent);
+  background-color: rgba(253, 224, 71, 0.6);
+  z-index: 1;
+}
+
+.unlocked-achievement {
+  animation: achievement-glow 2s infinite alternate;
+}
+
+.achievement-unlock {
+  position: relative;
+  animation: bounce 0.5s ease infinite alternate;
+}
+
+@keyframes achievement-glow {
+  0% {
+    box-shadow: 0 0 5px rgba(253, 224, 71, 0.3);
+  }
+  100% {
+    box-shadow: 0 0 15px rgba(253, 224, 71, 0.6);
+  }
+}
+
+@keyframes bounce {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-3px);
+  }
+}
+
+/* 数字动画效果 */
+.number-animation {
+  position: relative;
+  display: inline-block;
+  transition: all 0.5s ease;
+}
+
+.number-animation.update {
+  animation: number-update 0.5s ease;
+}
+
+@keyframes number-update {
+  0% {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* 羽毛球入场动画，页面加载时应用 */
+@keyframes shuttlecock-enter {
+  0% {
+    transform: translateY(-100%) rotate(45deg);
+    opacity: 0;
+  }
+  60% {
+    transform: translateY(10%) rotate(-15deg);
+    opacity: 1;
+  }
+  80% {
+    transform: translateY(-5%) rotate(5deg);
+  }
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+}
+
+/* 为移动设备优化样式 */
+@media screen and (max-width: 375px) {
+  .circle-progress-container,
+  .bar-chart-container {
+    width: 70px;
+    height: 70px;
+  }
 }
 </style>

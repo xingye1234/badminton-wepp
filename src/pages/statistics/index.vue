@@ -1,7 +1,7 @@
 <template>
   <view class="min-h-screen bg-[#f6fbff] overflow-hidden">
     <!-- 顶部渐变背景 -->
-    <view class="w-full bg-gradient-to-r from-blue-500 to-green-400 pt-12 pb-16 px-4">
+    <view class="w-full header-bg pt-12 pb-16 px-4">
       <view class="flex items-center">
         <text class="i-mdi:chart-box text-2xl text-white mr-2" />
         <text class="text-xl text-white font-bold">训练统计</text>
@@ -10,24 +10,25 @@
     </view>
 
     <!-- 本月统计卡片 -->
-    <view class="mx-4 -mt-12 bg-white rounded-xl shadow-lg p-5">
+    <view class="mx-4 -mt-12 card-container p-5 z-10 relative">
+      <div class="shimmer-bg"></div>
       <view class="flex items-center mb-4">
         <text class="i-mdi:chart-line text-xl text-blue-500 mr-2" />
         <text class="text-lg font-bold">本月统计</text>
       </view>
       <view class="grid grid-cols-3 gap-4 mb-2">
         <view class="flex flex-col items-center">
-          <text class="text-3xl font-bold text-blue-500">{{
+          <text class="stat-number stat-number-delay-1 text-3xl font-bold text-blue-500">{{
             monthDays
           }}</text>
           <text class="text-xs text-gray-500 mt-1">训练天数</text>
         </view>
         <view class="flex flex-col items-center">
-          <text class="text-3xl font-bold text-purple-500">{{ monthHours }}h</text>
+          <text class="stat-number stat-number-delay-2 text-3xl font-bold text-purple-500">{{ monthHours }}h</text>
           <text class="text-xs text-gray-500 mt-1">总时长</text>
         </view>
         <view class="flex flex-col items-center">
-          <text class="text-3xl font-bold text-orange-500">{{
+          <text class="stat-number stat-number-delay-3 text-3xl font-bold text-orange-500">{{
             monthCalories
           }}</text>
           <text class="text-xs text-gray-500 mt-1">总卡路里</text>
@@ -36,54 +37,55 @@
     </view>
 
     <!-- 强度分布卡片 -->
-    <view class="mx-4 bg-white rounded-xl shadow-lg mt-4 p-5">
+    <view class="mx-4 card-container mt-4 p-5">
+      <div class="shimmer-bg"></div>
       <view class="flex items-center mb-4">
         <text class="i-mdi:flash text-xl text-yellow-500 mr-2" />
         <text class="text-lg font-bold">强度分布</text>
       </view>
       <view class="flex flex-col gap-4">
-        <view class="flex items-center justify-between p-4 rounded-lg bg-green-50 border-l-4 border-green-400">
+        <view class="intensity-card flex items-center justify-between p-4 rounded-lg bg-green-50 border-l-4 border-green-400">
           <view class="flex items-center">
-            <view class="w-20 h-20 rounded-full bg-green-500 flex items-center justify-center mr-3">
+            <view class="intensity-icon w-20 h-20 rounded-full bg-green-500 flex items-center justify-center mr-3">
               <text class="i-mdi:walk text-2xl text-green-600"></text>
             </view>
             <text class="font-medium text-gray-800">轻松训练</text>
           </view>
           <view class="flex items-center">
             <text class="text-sm text-gray-500 mr-2">{{ easyHours }}小时</text>
-            <text class="text-xl font-bold text-green-600">{{
+            <text class="stat-number text-xl font-bold text-green-600">{{
               easyDays
             }}</text>
             <text class="text-sm text-gray-500 ml-1">天</text>
           </view>
         </view>
         
-        <view class="flex items-center justify-between p-4 rounded-lg bg-yellow-50 border-l-4 border-yellow-400">
+        <view class="intensity-card flex items-center justify-between p-4 rounded-lg bg-yellow-50 border-l-4 border-yellow-400">
           <view class="flex items-center">
-            <view class="w-20 h-20 rounded-full bg-yellow-500 flex items-center justify-center mr-3">
+            <view class="intensity-icon w-20 h-20 rounded-full bg-yellow-500 flex items-center justify-center mr-3">
               <text class="i-mdi:run text-2xl text-yellow-600"></text>
             </view>
             <text class="font-medium text-gray-800">中等强度</text>
           </view>
           <view class="flex items-center">
             <text class="text-sm text-gray-500 mr-2">{{ mediumHours }}小时</text>
-            <text class="text-xl font-bold text-yellow-600">{{
+            <text class="stat-number text-xl font-bold text-yellow-600">{{
               mediumDays
             }}</text>
             <text class="text-sm text-gray-500 ml-1">天</text>
           </view>
         </view>
         
-        <view class="flex items-center justify-between p-4 rounded-lg bg-red-50 border-l-4 border-red-400">
+        <view class="intensity-card flex items-center justify-between p-4 rounded-lg bg-red-50 border-l-4 border-red-400">
           <view class="flex items-center">
-            <view class="w-20 h-20 rounded-full bg-red-500 flex items-center justify-center mr-3">
+            <view class="intensity-icon w-20 h-20 rounded-full bg-red-500 flex items-center justify-center mr-3">
               <text class="i-mdi:run-fast text-2xl text-red-600"></text>
             </view>
             <text class="font-medium text-gray-800">高强度训练</text>
           </view>
           <view class="flex items-center">
             <text class="text-sm text-gray-500 mr-2">{{ hardHours }}小时</text>
-            <text class="text-xl font-bold text-red-600">{{
+            <text class="stat-number text-xl font-bold text-red-600">{{
               hardDays
             }}</text>
             <text class="text-sm text-gray-500 ml-1">天</text>
@@ -95,11 +97,14 @@
     <!-- 内容选项卡 -->
     <view class="mx-4 mt-4 mb-4">
       <view class="bg-gray-100 rounded-xl p-1 flex justify-between">
-        <view class="flex-1 py-2 px-4 rounded-lg text-center" 
+        <view 
           v-for="(tab, index) in tabs" 
           :key="index" 
           @click="currentTab = index" 
-          :class="[currentTab === index ? 'bg-white text-blue-500 shadow-sm' : 'text-gray-500']">
+          :class="[
+            'tab-item flex-1 py-2 px-4 rounded-lg text-center',
+            currentTab === index ? 'bg-white text-blue-500 shadow-sm active' : 'text-gray-500'
+          ]">
           <text class="text-sm font-medium">{{ tab.name }}</text>
         </view>
       </view>
@@ -108,9 +113,10 @@
     <view class="mx-4 mb-6">
       <view v-show="currentTab === 0">
         <!-- 训练建议内容 -->
-        <view class="bg-white rounded-xl shadow-lg p-5">
+        <view class="card-container p-5">
+          <div class="shimmer-bg"></div>
           <view class="flex items-center mb-4">
-            <text class="i-mdi:lightbulb-on text-xl text-yellow-500 mr-2" />
+            <text class="i-mdi:lightbulb-on text-xl text-yellow-500 mr-2 animate-pulse" />
             <text class="text-lg font-bold">智能训练建议</text>
           </view>
           <view class="bg-blue-50 rounded-lg p-4">
@@ -193,22 +199,25 @@
       </view>
       <view v-show="currentTab === 1">
         <!-- 训练计划内容 -->
-        <view class="bg-white rounded-xl shadow-lg p-5">
+        <view class="card-container p-5">
+          <div class="shimmer-bg"></div>
           <view class="flex items-center justify-between mb-4">
             <view class="flex items-center">
               <text class="i-mdi:calendar text-xl text-purple-500 mr-2" />
               <text class="text-lg font-bold">下周训练计划</text>
             </view>
-            <!-- <wd-button type="primary" size="small" @click="generatePlan" v-show="!showPlan">生成计划</wd-button> -->
           </view>
           <view v-if="!showPlan" class="flex flex-col items-center justify-center py-10">
             <text class="i-mdi:calendar-outline text-6xl text-gray-200 mb-4" />
             <text class="text-gray-500 mb-4 text-sm text-center">点击生成计划按钮，智能制定下周训练安排</text>
-            <wd-button type="primary" @click="generatePlan">开始制定计划</wd-button>
+            <button class="py-2 px-4 rounded-lg generate-button text-white text-base" @click="generatePlan">
+              <text class="i-mdi:magic text-xl mr-2"></text>
+              <text>开始制定计划</text>
+            </button>
           </view>
           <view v-else>
             <view v-for="(item, idx) in weekPlan" :key="item.week" :class="[
-              'rounded-lg p-4 mb-3 border-l-4',
+              'plan-item rounded-lg p-4 mb-3 border-l-4',
               item.color === 'green' ? 'bg-green-50 border-green-400' : '',
               item.color === 'yellow' ? 'bg-yellow-50 border-yellow-400' : '',
               item.color === 'red' ? 'bg-red-50 border-red-400' : '',
@@ -240,7 +249,7 @@
                 }}</text>
                 <view class="flex flex-wrap gap-2 mt-2">
                   <view v-for="tag in item.tags" :key="tag"
-                    class="bg-white border border-gray-200 text-gray-700 px-2 py-1 rounded-full text-xs">{{
+                    class="tag-item bg-white border border-gray-200 text-gray-700 px-2 py-1 rounded-full text-xs">{{
                     tag }}</view>
                 </view>
               </view>
@@ -254,15 +263,16 @@
       </view>
       <view v-show="currentTab === 2">
         <!-- 训练趋势内容 -->
-        <view class="bg-white rounded-xl shadow-lg p-5">
+        <view class="card-container p-5">
+          <div class="shimmer-bg"></div>
           <view class="flex items-center mb-4">
             <text class="i-mdi:chart-line text-xl text-purple-500 mr-2" />
             <text class="text-lg font-bold">训练趋势</text>
           </view>
           <view class="flex flex-col divide-y divide-gray-100">
-            <view class="flex justify-between items-center py-3">
+            <view class="trend-item flex justify-between items-center py-3">
               <view class="flex items-center">
-                <view class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                <view class="trend-icon w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
                   <text class="i-mdi:timer-outline text-blue-500"></text>
                 </view>
                 <text class="text-sm text-gray-700">周平均训练时长</text>
@@ -272,18 +282,18 @@
               </text>
               <text class="text-base font-medium text-gray-800" v-else>暂无数据</text>
             </view>
-            <view class="flex justify-between items-center py-3">
+            <view class="trend-item flex justify-between items-center py-3">
               <view class="flex items-center">
-                <view class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                <view class="trend-icon w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
                   <text class="i-mdi:fire text-green-500"></text>
                 </view>
                 <text class="text-sm text-gray-700">最长连续打卡</text>
               </view>
               <text class="text-base font-medium text-green-600">{{stats.maxStreak}}天</text>
             </view>
-            <view class="flex justify-between items-center py-3">
+            <view class="trend-item flex justify-between items-center py-3">
               <view class="flex items-center">
-                <view class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center mr-3">
+                <view class="trend-icon w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center mr-3">
                   <text class="i-mdi:heart-pulse text-purple-500"></text>
                 </view>
                 <text class="text-sm text-gray-700">最喜欢的训练强度</text>
@@ -298,27 +308,27 @@
               </view>
               <view v-else class="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">暂无数据</view>
             </view>
-            <view class="flex justify-between items-center py-3">
+            <view class="trend-item flex justify-between items-center py-3">
               <view class="flex items-center">
-                <view class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center mr-3">
+                <view class="trend-icon w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center mr-3">
                   <text class="i-mdi:fire text-orange-500"></text>
                 </view>
                 <text class="text-sm text-gray-700">累计消耗卡路里</text>
               </view>
               <text class="text-base font-medium text-orange-600">{{stats.totalCalorie}}卡</text>
             </view>
-            <view class="flex justify-between items-center py-3">
+            <view class="trend-item flex justify-between items-center py-3">
               <view class="flex items-center">
-                <view class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                <view class="trend-icon w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
                   <text class="i-mdi:clock-time-four text-blue-500"></text>
                 </view>
                 <text class="text-sm text-gray-700">平均训练时长</text>
               </view>
               <text class="text-base font-medium text-gray-400">暂无数据</text>
             </view>
-            <view class="flex justify-between items-center py-3">
+            <view class="trend-item flex justify-between items-center py-3">
               <view class="flex items-center">
-                <view class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                <view class="trend-icon w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
                   <text class="i-mdi:calendar-check text-blue-500"></text>
                 </view>
                 <text class="text-sm text-gray-700">本月训练频率</text>
@@ -505,5 +515,252 @@ function generatePlan() {
 
 :deep(.wd-tabs__nav) {
   background-color: transparent !important;
+}
+
+.header-bg {
+  background: linear-gradient(135deg, #4f46e5, #06b6d4, #3b82f6);
+  position: relative;
+  overflow: hidden;
+}
+
+.header-bg::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 10px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.1), rgba(255,255,255,0.3), rgba(255,255,255,0.1));
+  animation: header-wave 3s linear infinite;
+  z-index: 0;
+}
+
+@keyframes header-wave {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.stat-number {
+  animation: number-pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+@keyframes number-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.stat-number-delay-1 {
+  animation-delay: 0.1s;
+}
+
+.stat-number-delay-2 {
+  animation-delay: 0.2s;
+}
+
+.stat-number-delay-3 {
+  animation-delay: 0.3s;
+}
+
+.intensity-card {
+  transition: transform 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.intensity-card:hover {
+  transform: translateY(-3px);
+}
+
+.intensity-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at center, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 70%);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.intensity-card:hover::after {
+  opacity: 0.3;
+}
+
+.intensity-icon {
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.intensity-icon::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 50%;
+  box-shadow: 0 0 15px rgba(0,0,0,0.1);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+
+.intensity-icon:hover::after {
+  opacity: 1;
+}
+
+.tab-item {
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.tab-item::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #3b82f6, #10b981);
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+}
+
+.tab-item.active::before {
+  width: 70%;
+}
+
+.card-container {
+  border-radius: 1rem;
+  background: white;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.card-container:hover {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  transform: translateY(-2px);
+}
+
+.plan-item {
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.plan-item:hover {
+  transform: translateY(-3px);
+}
+
+.trend-item {
+  transition: all 0.3s ease;
+}
+
+.trend-item:hover {
+  background-color: #f9fafb;
+}
+
+.trend-icon {
+  transition: all 0.3s ease;
+}
+
+.trend-item:hover .trend-icon {
+  transform: scale(1.1);
+}
+
+.generate-button {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(90deg, #3b82f6, #06b6d4);
+  transition: all 0.3s ease;
+}
+
+.generate-button::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, rgba(255,255,255,0.1), rgba(255,255,255,0.3), rgba(255,255,255,0.1));
+  transform: translateX(-100%);
+  animation: button-shine 3s infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes button-shine {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.tag-item {
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.tag-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.shimmer-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.05) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: shimmer-bg 3s infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes shimmer-bg {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 </style>
