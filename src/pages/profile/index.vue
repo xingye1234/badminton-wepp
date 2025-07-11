@@ -108,7 +108,7 @@
         <view class="flex items-center mb-3">
           <text class="text-sm text-gray-600 w-1/4">周期选择：</text>
           <view class="flex flex-1">
-            <wd-radio-group v-model="goalPeriodType" inline>
+            <wd-radio-group v-model="goalPeriodType" inline shape="dot">
               <wd-radio value="week" class="flex-1 mr-2">按周</wd-radio>
               <wd-radio value="month" class="flex-1">按月</wd-radio>
             </wd-radio-group>

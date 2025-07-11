@@ -153,7 +153,7 @@
         <view class="bg-gradient-to-br from-purple-100 to-blue-50 rounded-lg p-5 border border-purple-200 mb-4 share-card">
           <view class="flex items-center">
             <image v-if="avatarUrl" :src="avatarUrl" class="w-88 h-88 rounded-full" />
-            <view v-else class="w-16 h-16 rounded-full bg-gradient-to-br from-purple-400 to-blue-400 flex items-center justify-center text-white text-xl font-bold">
+            <view v-else class="w-88 h-88 rounded-full bg-gradient-to-br from-purple-400 to-blue-400 flex items-center justify-center text-white text-xl font-bold">
               {{ nickname.charAt(0) }}
             </view>
             <view class="ml-4">
