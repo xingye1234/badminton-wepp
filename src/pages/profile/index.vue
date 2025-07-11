@@ -1,5 +1,6 @@
 <template>
-  <view class="min-h-screen bg-[#f6fbff] pb-6 box-border overflow-hidden">
+  <app-layout>
+    <view class="min-h-screen bg-[#f6fbff] box-border overflow-hidden pb-5">
 
     <!-- 顶部渐变背景改为动态渐变 -->
     <view class="w-full gradient-animation pt-12 pb-16 px-4">
@@ -264,12 +265,15 @@
       </view>
     </view> -->
 
-    <!-- 底部操作栏移除 -->
-  </view>
-</template>
+        <!-- 底部操作栏移除 -->
+      </view>
+    </app-layout>
+    <wd-toast />
+  </template>
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
+import AppLayout from '@/components/AppLayout.vue'
 import { 
   getAllRecords, 
   getCurrentMonthStats, 
@@ -278,6 +282,7 @@ import {
   ClockInRecord,
   TrainingStats
 } from '@/utils/storage'
+import { useToast } from 'wot-design-uni'
 
 const nickname = ref('羽毛球爱好者')
 const editMode = ref(false)
@@ -285,9 +290,7 @@ const editNickname = ref('羽毛球爱好者')
 const monthlyGoal = ref(20)
 const editMonthlyGoal = ref('20')
 const editGoal = ref(false)
-
-// 这些功能已移至首页
-const showFeedback = ref(false)
+const toast = useToast();
 
 function onStartTrain() {
   uni.navigateTo({
@@ -624,11 +627,8 @@ function onSave() {
   editMode.value = false
   // 保存用户信息到本地
   saveUserProfile()
+  toast.success('个人信息已保存')
   
-  uni.showToast({
-    title: '个人信息已保存',
-    icon: 'success'
-  })
 }
 
 function onCancel() {
@@ -644,12 +644,9 @@ function saveGoal() {
     setMonthlyTarget(goal);
     editGoal.value = false;
   } else {
-    uni.showToast({
-      title: goalPeriodType.value === 'week' 
+    toast.error(goalPeriodType.value === 'week' 
         ? '请输入1-7的有效天数' 
-        : '请输入1-31的有效天数',
-      icon: 'none'
-    });
+        : '请输入1-31的有效天数');
   }
 }
 
@@ -721,16 +718,10 @@ function onUploadAvatar() {
       //   current: tempFilePath
       // })
       
-      uni.showToast({
-        title: '头像已更新',
-        icon: 'success'
-      })
+      toast.success('头像已更新')
     },
     fail: () => {
-      uni.showToast({
-        title: '取消选择',
-        icon: 'none'
-      })
+      toast.error('取消选择')
     }
   })
 }

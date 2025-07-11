@@ -8,6 +8,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AICoachCard: typeof import('./src/components/AICoachCard.vue')['default']
+    AppLayout: typeof import('./src/components/AppLayout.vue')['default']
     MilestoneMask: typeof import('./src/components/MilestoneMask.vue')['default']
     WdIcon: typeof import('wot-design-uni/components/wd-icon/wd-icon.vue')['default']
     WdPopup: typeof import('wot-design-uni/components/wd-popup/wd-popup.vue')['default']

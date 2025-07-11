@@ -1,5 +1,6 @@
 <template>
-  <view class="bg-[#f6fbff] min-h-screen pb-6">
+  <app-layout>
+    <view class="bg-[#f6fbff] min-h-screen pb-5">
     <!-- 顶部标题区 -->
     <view class="pt-8 pb-2 flex flex-col items-center">
       <text class="text-base text-gray-500 mt-2">坚持训练，成就更好的自己</text>
@@ -52,7 +53,7 @@
         <text class="text-lg font-bold mr-2">本月进度</text>
         <view class="flex items-center">
           <text class="text-gray-500 text-sm">已训练 {{stats.totalDays}} 天 / 目标 {{monthlyTarget}} 天</text>
-          <view v-if="stats.streak > 0" class="ml-3 bg-yellow-100 px-2 py-1 rounded-full flex items-center">
+          <view v-if="stats.streak > 1" class="ml-3 bg-yellow-100 px-2 py-1 rounded-full flex items-center">
             <text class="i-mdi:fire text-yellow-500 mr-1"></text>
             <text class="text-xs text-yellow-600 font-bold">连续{{stats.streak}}天</text>
           </view>
@@ -239,6 +240,7 @@
 
     <MilestoneMask v-model:show="showMilestone" :percentage="percentage" />
   </view>
+  </app-layout>
 </template>
 
 <script setup lang="ts">
@@ -246,6 +248,7 @@ import { ref, computed, watch, onMounted } from "vue";
 import { onShow } from '@dcloudio/uni-app';
 import MilestoneMask from "@/components/MilestoneMask.vue";
 import AICoachCard from "@/components/AICoachCard.vue";
+import AppLayout from '@/components/AppLayout.vue';
 import { 
   getAllRecords, 
   getTodayString, 

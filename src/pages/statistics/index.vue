@@ -1,5 +1,6 @@
 <template>
-  <view class="min-h-screen bg-[#f6fbff] overflow-hidden">
+  <app-layout>
+    <view class="min-h-screen bg-[#f6fbff] overflow-hidden pb-5">
     <!-- 顶部渐变背景 -->
     <view class="w-full header-bg pt-12 pb-16 px-4">
       <view class="flex items-center">
@@ -103,14 +104,14 @@
           @click="currentTab = index" 
           :class="[
             'tab-item flex-1 py-2 px-4 rounded-lg text-center',
-            currentTab === index ? 'bg-white text-blue-500 shadow-sm active' : 'text-gray-500'
+            currentTab === index ? ' text-blue-500 shadow-sm active' : 'text-gray-500'
           ]">
           <text class="text-sm font-medium">{{ tab.name }}</text>
         </view>
       </view>
     </view>
 
-    <view class="mx-4 mb-6">
+    <view class="mx-4">
       <view v-show="currentTab === 0">
         <!-- 训练建议内容 -->
         <view class="card-container p-5">
@@ -272,7 +273,7 @@
           <view class="flex flex-col divide-y divide-gray-100">
             <view class="trend-item flex justify-between items-center py-3">
               <view class="flex items-center">
-                <view class="trend-icon w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                <view class="trend-icon w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center mr-3">
                   <text class="i-mdi:timer-outline text-blue-500"></text>
                 </view>
                 <text class="text-sm text-gray-700">周平均训练时长</text>
@@ -284,7 +285,7 @@
             </view>
             <view class="trend-item flex justify-between items-center py-3">
               <view class="flex items-center">
-                <view class="trend-icon w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                <view class="trend-icon w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mr-3">
                   <text class="i-mdi:fire text-green-500"></text>
                 </view>
                 <text class="text-sm text-gray-700">最长连续打卡</text>
@@ -293,7 +294,7 @@
             </view>
             <view class="trend-item flex justify-between items-center py-3">
               <view class="flex items-center">
-                <view class="trend-icon w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center mr-3">
+                <view class="trend-icon w-20 h-20 rounded-full bg-purple-100 flex items-center justify-center mr-3">
                   <text class="i-mdi:heart-pulse text-purple-500"></text>
                 </view>
                 <text class="text-sm text-gray-700">最喜欢的训练强度</text>
@@ -310,7 +311,7 @@
             </view>
             <view class="trend-item flex justify-between items-center py-3">
               <view class="flex items-center">
-                <view class="trend-icon w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center mr-3">
+                <view class="trend-icon w-20 h-20 rounded-full bg-orange-100 flex items-center justify-center mr-3">
                   <text class="i-mdi:fire text-orange-500"></text>
                 </view>
                 <text class="text-sm text-gray-700">累计消耗卡路里</text>
@@ -319,7 +320,7 @@
             </view>
             <view class="trend-item flex justify-between items-center py-3">
               <view class="flex items-center">
-                <view class="trend-icon w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                <view class="trend-icon w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center mr-3">
                   <text class="i-mdi:clock-time-four text-blue-500"></text>
                 </view>
                 <text class="text-sm text-gray-700">平均训练时长</text>
@@ -328,7 +329,7 @@
             </view>
             <view class="trend-item flex justify-between items-center py-3">
               <view class="flex items-center">
-                <view class="trend-icon w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                <view class="trend-icon w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center mr-3">
                   <text class="i-mdi:calendar-check text-blue-500"></text>
                 </view>
                 <text class="text-sm text-gray-700">本月训练频率</text>
@@ -340,11 +341,13 @@
       </view>
     </view>
   </view>
+  </app-layout>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
+import AppLayout from '@/components/AppLayout.vue'
 import { 
   getCurrentMonthStats, 
   getMonthStats,
@@ -420,10 +423,11 @@ function loadData() {
 
 // 周训练计划
 const showPlan = ref(false)
-const weekPlan = [
+const weekPlan = ref<any[]>([])
+
+// 训练模板数据
+const trainingTemplates = [
   {
-    week: '周一',
-    date: '5月20日',
     level: '轻松',
     type: '基础步法训练',
     duration: 60,
@@ -432,8 +436,6 @@ const weekPlan = [
     tags: ['步法', '基础', '移动能力']
   },
   {
-    week: '周二',
-    date: '5月21日',
     level: '',
     type: '休息日',
     duration: 0,
@@ -442,8 +444,6 @@ const weekPlan = [
     tags: []
   },
   {
-    week: '周三',
-    date: '5月22日',
     level: '中等',
     type: '击球技术训练',
     duration: 80,
@@ -452,8 +452,6 @@ const weekPlan = [
     tags: ['高远球', '网前球', '技术']
   },
   {
-    week: '周四',
-    date: '5月23日',
     level: '轻松',
     type: '恢复性训练',
     duration: 45,
@@ -462,8 +460,6 @@ const weekPlan = [
     tags: ['恢复', '技术练习']
   },
   {
-    week: '周五',
-    date: '5月24日',
     level: '高强度',
     type: '比赛训练',
     duration: 90,
@@ -472,18 +468,6 @@ const weekPlan = [
     tags: ['比赛', '实战', '战术']
   },
   {
-    week: '周六',
-    date: '5月25日',
-    level: '',
-    type: '休息日',
-    duration: 0,
-    color: 'gray',
-    desc: '',
-    tags: []
-  },
-  {
-    week: '周日',
-    date: '5月26日',
     level: '中等',
     type: '综合训练',
     duration: 70,
@@ -493,7 +477,57 @@ const weekPlan = [
   }
 ]
 
+// 周几对应的中文
+const weekDayNames = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
+
 function generatePlan() {
+  const today = new Date()
+  
+  // 生成从今天开始的一周计划
+  let planItems = []
+  for (let i = 0; i < 7; i++) {
+    // 计算日期
+    const date = new Date(today)
+    date.setDate(today.getDate() + i)
+    
+    // 日期格式化
+    const month = date.getMonth() + 1
+    const day = date.getDate()
+    const dateStr = `${month}月${day}日`
+    
+    // 获取星期几
+    const weekDay = weekDayNames[date.getDay()]
+    
+    // 随机选择训练类型（为简化，我们使用模板按固定模式分配）
+    let templateIndex
+    
+    if (date.getDay() === 2 || date.getDay() === 6) {
+      // 周二和周六设为休息日
+      templateIndex = 1
+    } else {
+      // 其他日子随机分配训练类型（跳过休息日模板）
+      const availableTemplates = [0, 2, 3, 4, 5]
+      templateIndex = availableTemplates[Math.floor(Math.random() * availableTemplates.length)]
+    }
+    
+    const template = trainingTemplates[templateIndex]
+    
+    // 创建计划项
+    const planItem = {
+      week: weekDay,
+      date: dateStr,
+      level: template.level,
+      type: template.type,
+      duration: template.duration,
+      color: template.color,
+      desc: template.desc,
+      tags: template.tags
+    }
+    
+    planItems.push(planItem)
+  }
+  
+  weekPlan.value = planItems
   showPlan.value = true
 }
 </script>
@@ -653,10 +687,6 @@ function generatePlan() {
   transition: all 0.3s ease;
 }
 
-.card-container:hover {
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  transform: translateY(-2px);
-}
 
 .plan-item {
   transition: all 0.3s ease;
