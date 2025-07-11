@@ -7,11 +7,13 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
+    AICoachCard: typeof import('./src/components/AICoachCard.vue')['default']
     MilestoneMask: typeof import('./src/components/MilestoneMask.vue')['default']
-    WdButton: typeof import('wot-design-uni/components/wd-button/wd-button.vue')['default']
     WdIcon: typeof import('wot-design-uni/components/wd-icon/wd-icon.vue')['default']
     WdPopup: typeof import('wot-design-uni/components/wd-popup/wd-popup.vue')['default']
     WdProgress: typeof import('wot-design-uni/components/wd-progress/wd-progress.vue')['default']
+    WdRadio: typeof import('wot-design-uni/components/wd-radio/wd-radio.vue')['default']
+    WdRadioGroup: typeof import('wot-design-uni/components/wd-radio-group/wd-radio-group.vue')['default']
     WdSlider: typeof import('wot-design-uni/components/wd-slider/wd-slider.vue')['default']
     WdToast: typeof import('wot-design-uni/components/wd-toast/wd-toast.vue')['default']
   }

@@ -121,8 +121,8 @@
           <view>
             <text class="text-base font-medium">{{getIntensityLabel(record.intensity)}}</text>
             <text class="block text-xs text-gray-400 mt-1">
-              <text class="text-sm">{{formatDateDay(record.date)}}</text> 
-              <text class="text-xs text-gray-400">/{{formatDateMonth(record.date)}}</text>
+              <text class="text-xs text-gray-400">{{formatDateMonth(record.date)}}</text>
+              <text class="text-xs">{{formatDateDay(record.date)}}</text>
             </text>
           </view>
           <text class="text-lg font-bold" :class="[
@@ -130,6 +130,81 @@
             record.intensity === 'medium' ? 'text-yellow-700' : '',
             record.intensity === 'hard' ? 'text-red-700' : 'text-gray-800'
           ]">{{record.duration}}分钟</text>
+        </view>
+      </view>
+    </view>
+    
+    <AICoachCard 
+      :ai-coach-message="aiCoachMessage"
+      :daily-training-recommendations="dailyTrainingRecommendations"
+      :diet-recommendation="dietRecommendation"
+      @start-training="handleNavTo"
+    />
+
+    <!-- 社交分享功能 -->
+    <view class="bg-white rounded-2xl shadow p-6 mx-4 mt-4">
+      <view class="flex items-center mb-4">
+        <text class="i-mdi:share-variant text-xl text-purple-500 mr-2" />
+        <text class="text-lg font-bold">分享成就</text>
+      </view>
+      
+      <!-- 分享卡片预览 -->
+      <view class="relative">
+        <view class="bg-gradient-to-br from-purple-100 to-blue-50 rounded-lg p-5 border border-purple-200 mb-4 share-card">
+          <view class="flex items-center">
+            <image v-if="avatarUrl" :src="avatarUrl" class="w-88 h-88 rounded-full" />
+            <view v-else class="w-16 h-16 rounded-full bg-gradient-to-br from-purple-400 to-blue-400 flex items-center justify-center text-white text-xl font-bold">
+              {{ nickname.charAt(0) }}
+            </view>
+            <view class="ml-4">
+              <text class="text-lg font-bold">{{ nickname }}</text>
+              <view class="flex items-center">
+                <text class="text-xs text-gray-500">本月目标完成率</text>
+                <text class="text-lg font-bold ml-2 text-purple-600">{{ percentage }}%</text>
+              </view>
+            </view>
+          </view>
+          
+          <view class="my-4">
+            <view class="w-full h-15 bg-gray-100 rounded-full overflow-hidden">
+              <view class="h-15 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full" :style="`width: ${percentage}%`"></view>
+            </view>
+          </view>
+          
+          <view class="flex items-center justify-between">
+            <view class="flex items-center">
+              <text class="i-mdi:calendar-check text-green-500 mr-1"></text>
+              <text class="text-sm">已打卡{{ stats.totalDays }}天</text>
+            </view>
+            <view class="flex items-center">
+              <text class="i-mdi:clock-outline text-blue-500 mr-1"></text>
+              <text class="text-sm">累计{{ totalTrainingHours }}小时</text>
+            </view>
+          </view>
+          
+          <view class="absolute top-2 right-2 bg-yellow-400 px-2 py-1 rounded-full transform rotate-12">
+            <text class="text-xs font-bold text-white">来挑战我！</text>
+          </view>
+          
+          <view class="mt-3 pt-3 border-t border-purple-100 flex justify-center">
+            <text class="text-xs text-gray-500">扫码加入羽毛球打卡挑战</text>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 分享按钮 -->
+      <view class="flex justify-center gap-6">
+        <view class="wechat-btn flex flex-col items-center" @click="shareToWechat">
+          <view class="wechat-icon mb-1">
+            <image src="@/static/images/wechat.png" mode="aspectFit" class="w-48 h-48"></image>
+          </view>
+          <text class="text-xs text-gray-600">微信好友</text>
+        </view>
+        <view class="moments-btn flex flex-col items-center" @click="shareToMoments">
+          <view class="moments-icon mb-1">
+            <image src="@/static/images/moment.png" mode="aspectFit" class="w-48 h-48"></image>
+          </view>
+          <text class="text-xs text-gray-600">朋友圈</text>
         </view>
       </view>
     </view>
@@ -156,7 +231,7 @@
           </view>
           <view class="flex justify-between">
             <text class="text-gray-500">消耗卡路里</text>
-            <text class="font-bold text-green-600 calorie-pulse">{{selectedRecord.calorie}} 卡</text>
+            <text class="font-bold text-green-600">{{selectedRecord.calorie}} 卡</text>
           </view>
         </view>
       </view>
@@ -170,6 +245,7 @@
 import { ref, computed, watch, onMounted } from "vue";
 import { onShow } from '@dcloudio/uni-app';
 import MilestoneMask from "@/components/MilestoneMask.vue";
+import AICoachCard from "@/components/AICoachCard.vue";
 import { 
   getAllRecords, 
   getTodayString, 
@@ -178,6 +254,66 @@ import {
   getMonthlyTarget,
   ClockInRecord
 } from "@/utils/storage";
+
+// 用户基础信息
+const nickname = ref('羽毛球爱好者');
+const avatarUrl = ref('');
+
+// AI教练与社交分享
+const aiCoachMessage = ref('根据你最近的训练数据分析，你的正手击球力量有所提升，但反手技巧还需加强。建议今天侧重反手训练。')
+const dailyTrainingRecommendations = ref(['反手高远球练习', '步法训练', '手腕力量', '网前技巧'])
+const dietRecommendation = ref('训练前: 香蕉或能量棒提供快速能量；训练后: 蛋白质饮料帮助肌肉恢复，搭配全谷物碳水。')
+// 分享信息
+const shareInfo = ref<any>({
+  title: '',
+  path: '',
+  summary: '',
+  imageUrl: ''
+});
+
+// 社交分享方法
+function shareToWechat() {
+  // 微信小程序分享API
+  uni.showShareMenu({
+    withShareTicket: true,
+    menus: ['shareAppMessage', 'shareTimeline'],
+    success: function() {
+      uni.showToast({
+        title: '请点击右上角分享',
+        icon: 'none'
+      });
+    }
+  });
+  
+  // 定义分享内容
+  shareInfo.value = {
+    title: '我的羽毛球训练成就',
+    path: '/pages/index/index',
+    summary: `本月已训练${stats.value.totalDays}天，目标完成率${percentage.value}%`,
+    imageUrl: '@/static/images/wechat.png'
+  };
+}
+
+function shareToMoments() {
+  // 分享到朋友圈
+  uni.showShareMenu({
+    withShareTicket: true,
+    menus: ['shareTimeline'],
+    success: function() {
+      uni.showToast({
+        title: '请点击右上角分享到朋友圈',
+        icon: 'none'
+      });
+    }
+  });
+  
+  // 定义朋友圈分享内容
+  shareInfo.value = {
+    title: `我已坚持羽毛球训练${stats.value.totalDays}天，本月目标完成率${percentage.value}%，一起来打卡吧！`,
+    path: '/pages/index/index',
+    imageUrl: '@/static/images/moment.png'
+  };
+}
 
 function getTodayStr() {
   const weekMap = ["日", "一", "二", "三", "四", "五", "六"];
@@ -209,6 +345,12 @@ const recentRecords = computed(() => {
   return allRecords.value.slice(0, 3);
 });
 
+// 计算累计训练时长（小时）
+const totalTrainingHours = computed(() => {
+  const totalMinutes = allRecords.value.reduce((total, record) => total + record.duration, 0);
+  return (totalMinutes / 60).toFixed(1);
+});
+
 // 记录详情弹窗
 const showDetail = ref(false);
 const selectedRecord = ref<ClockInRecord | null>(null);
@@ -221,6 +363,26 @@ function showRecordDetail(record: ClockInRecord) {
 // 加载数据
 onMounted(() => {
   loadData();
+  
+  // 设置页面分享处理函数
+  // @ts-ignore
+  uni.$scope && (uni.$scope.onShareAppMessage = function() {
+    return {
+      title: shareInfo.value.title,
+      path: shareInfo.value.path,
+      imageUrl: shareInfo.value.imageUrl
+    };
+  });
+  
+  // 设置朋友圈分享处理函数
+  // @ts-ignore
+  uni.$scope && (uni.$scope.onShareTimeline = function() {
+    return {
+      title: shareInfo.value.title,
+      query: `from=timeline`,
+      imageUrl: shareInfo.value.imageUrl
+    };
+  });
 });
 
 // 页面显示时重新加载数据
@@ -229,6 +391,9 @@ onShow(() => {
 });
 
 function loadData() {
+  // 加载本地存储的用户信息
+  loadUserProfile();
+
   // 加载今日打卡记录
   todayRecord.value = getRecordByDate(getTodayString());
   
@@ -240,6 +405,21 @@ function loadData() {
   
   // 加载每月目标天数
   monthlyTarget.value = getMonthlyTarget();
+}
+
+function loadUserProfile() {
+  try {
+    const storedNickname = uni.getStorageSync('user_nickname');
+    if (storedNickname) {
+      nickname.value = storedNickname;
+    }
+    const storedAvatarUrl = uni.getStorageSync('user_avatar');
+    if (storedAvatarUrl) {
+      avatarUrl.value = storedAvatarUrl;
+    }
+  } catch (e) {
+    console.error('读取用户信息失败:', e);
+  }
 }
 
 function getIntensityLabel(intensity: string): string {
@@ -269,7 +449,7 @@ function formatDateMonth(dateStr: string): string {
   const date = new Date(dateStr);
   const year = date.getFullYear();
   const month = date.getMonth() + 1;
-  return `${month}月${year}`;
+  return `${year}年${month}月`;
 }
 
 // 进度相关
@@ -548,5 +728,35 @@ const handleNavTo = () => {
 }
 .animate-bounce-in {
   animation: bounce-in 0.5s;
+}
+
+/* 里程碑弹出效果 */
+.milestone-popup {
+  animation: milestone-popup 0.5s ease-in-out;
+}
+
+@keyframes milestone-popup {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* 分享卡片动画 */
+.share-card {
+  transition: all 0.3s ease;
+  transform: perspective(1000px) rotateY(0deg);
+}
+
+.share-card:hover, .share-card:active {
+  transform: perspective(1000px) rotateY(5deg) translateY(-5px);
+  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.2);
 }
 </style>
