@@ -538,6 +538,7 @@ function updateAchievements() {
   
   // 4. 完美一周
   achievements.value[3].progress = stats.value.maxStreak;
+  achievements.value[3].progressLabel = `${stats.value.maxStreak}/7`;
   achievements.value[3].unlocked = stats.value.maxStreak >= 7;
   achievements.value[3].desc = `最长连续 ${stats.value.maxStreak} 天！`;
   achievements.value[3].iconColor = achievements.value[3].unlocked ? 'text-yellow-500' : 'text-gray-400';
