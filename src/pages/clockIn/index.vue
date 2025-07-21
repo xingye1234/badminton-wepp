@@ -176,11 +176,12 @@
       
       <!-- 确认按钮 -->
       <button
-        class="py-2 px-9 mt-auto rounded-lg bg-purple-500 text-white text-base font-bold weight-confirm-button"
+        class="py-3 px-10 mt-auto rounded-lg bg-purple-500 text-white text-base font-bold weight-confirm-button"
         @click="saveWeight"
       >
         确认
       </button>
+      <view class="h-40"/>
     </view>
   </wd-popup>
   

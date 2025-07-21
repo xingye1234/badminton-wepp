@@ -1,5 +1,5 @@
 <template>
-  <view class="bg-[#f8faff] min-h-screen">
+  <view class="bg-[#f8faff] min-h-screen overflow-hidden">
     <!-- 顶部标题区 -->
     <view class="pt-8 pb-2 flex flex-col items-center">
       <text class="text-base text-gray-500 mt-2">查看你的训练记录和进度</text>
@@ -52,13 +52,13 @@
               :class="[
                 'calendar-day w-96 h-78 flex flex-col items-center justify-center relative transition-all duration-200 rounded-lg',
                 cell.strength === 'easy' && cell.isCurrentMonth
-                  ? 'intensity-easy'
+                  ? 'bg-green-500 text-white'
                   : '',
                 cell.strength === 'medium' && cell.isCurrentMonth
-                  ? 'intensity-medium'
+                  ? 'bg-yellow-400 text-white'
                   : '',
                 cell.strength === 'hard' && cell.isCurrentMonth
-                  ? 'intensity-hard'
+                  ? 'bg-red-500 text-white'
                   : '',
                 selectedDay.year === year &&
                 selectedDay.month === month &&
@@ -84,21 +84,6 @@
                 ]"
                 >{{ cell.day }}</text
               >
-              <!-- 小圆点，8px，绝对定位在数字下方 -->
-              <view
-                v-if="cell.strength && cell.isCurrentMonth"
-                class="absolute left-1/2 -translate-x-1/2"
-                style="top: 28px"
-              >
-                <view
-                  :class="[
-                    'intensity-dot w-12 h-12 rounded-full',
-                    cell.strength === 'easy' ? 'bg-green-500' : '',
-                    cell.strength === 'medium' ? 'bg-yellow-400' : '',
-                    cell.strength === 'hard' ? 'bg-red-500' : '',
-                  ]"
-                ></view>
-              </view>
             </view>
           </view>
         </view>
@@ -326,22 +311,22 @@ function selectDay(cell: any) {
   position: relative;
 }
 
-.calendar-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
-    0 10px 10px -5px rgba(0, 0, 0, 0.04);
-}
+// .calendar-card:hover {
+//   transform: translateY(-2px);
+//   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+//     0 10px 10px -5px rgba(0, 0, 0, 0.04);
+// }
 
 .legend-card {
   transition: all 0.3s ease;
   position: relative;
 }
 
-.legend-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
-    0 10px 10px -5px rgba(0, 0, 0, 0.04);
-}
+// .legend-card:hover {
+//   transform: translateY(-2px);
+//   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+//     0 10px 10px -5px rgba(0, 0, 0, 0.04);
+// }
 
 .legend-item {
   transition: all 0.3s ease;

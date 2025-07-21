@@ -255,7 +255,10 @@ import {
   getRecordByDate, 
   getCurrentMonthStats, 
   getMonthlyTarget,
-  ClockInRecord
+  ClockInRecord,
+  getTodayAdvice,
+  CoachAdvice,
+  saveMonthlyAdvice
 } from "@/utils/storage";
 
 // 用户基础信息
@@ -367,6 +370,17 @@ function showRecordDetail(record: ClockInRecord) {
 onMounted(() => {
   loadData();
   
+  // 生成一个月的AI教练建议（仅在首次加载时生成）
+  try {
+    const adviceExists = uni.getStorageSync('badminton_coach_advice');
+    if (!adviceExists) {
+      saveMonthlyAdvice();
+    }
+  } catch (e) {
+    console.error('初始化AI教练建议失败:', e);
+    saveMonthlyAdvice();
+  }
+  
   // 设置页面分享处理函数
   // @ts-ignore
   uni.$scope && (uni.$scope.onShareAppMessage = function() {
@@ -408,6 +422,24 @@ function loadData() {
   
   // 加载每月目标天数
   monthlyTarget.value = getMonthlyTarget();
+  
+  // 加载今日AI教练建议
+  loadTodayAdvice();
+}
+
+// 加载今日AI教练建议
+function loadTodayAdvice() {
+  try {
+    const advice = getTodayAdvice();
+    
+    // 更新AI教练建议内容
+    aiCoachMessage.value = advice.message;
+    dailyTrainingRecommendations.value = advice.trainingTips;
+    dietRecommendation.value = advice.dietTip;
+  } catch (e) {
+    console.error('加载AI教练建议失败:', e);
+    // 保留默认值
+  }
 }
 
 function loadUserProfile() {
