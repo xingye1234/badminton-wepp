@@ -161,7 +161,9 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
 import { onShow } from "@dcloudio/uni-app";
-import { getAllRecords, ClockInRecord, formatDate } from "@/utils/storage";
+import AppLayout from "@/components/AppLayout.vue";
+import { getAllRecords, formatDate } from "@/utils/storage";
+import type { ClockInRecord } from "@/utils/storage";
 
 const weekList = ["日", "一", "二", "三", "四", "五", "六"];
 const today = new Date();

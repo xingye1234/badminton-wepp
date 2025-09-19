@@ -276,6 +276,7 @@ import {
   getRecordByDate,
   getTodayString,
 } from "@/utils/storage";
+import type { ClockInRecord } from "@/utils/storage";
 
 const toast = useToast();
 const duration = ref(60);

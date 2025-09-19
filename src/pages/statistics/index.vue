@@ -345,16 +345,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
-import { onShow } from '@dcloudio/uni-app'
-import AppLayout from '@/components/AppLayout.vue'
+import { ref, computed, watch, onMounted } from "vue";
+import { onShow } from "@dcloudio/uni-app";
+import AppLayout from "@/components/AppLayout.vue";
 import { 
   getCurrentMonthStats, 
   getMonthStats,
-  ClockInRecord,
-  TrainingStats,
-  getAllRecords,
-} from '@/utils/storage'
+  getAllRecords
+} from "@/utils/storage";
+import type { ClockInRecord, TrainingStats } from "@/utils/storage";
 
 const tabs = [
   { name: '训练建议' },

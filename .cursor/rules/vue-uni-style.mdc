@@ -1,0 +1,35 @@
+---
+globs: src/**/*.vue,*.ts
+description: Vue 3 + TypeScript + uni-app 编码约定
+---
+# Vue 3 + TypeScript + uni-app 编码约定
+
+## 组件编写规范
+- 使用 `<script setup lang="ts">` 语法
+- 组件和函数使用语义化命名，避免无意义缩写
+- 优先使用组合式 API (Composition API)
+
+## 代码结构约定
+- 早返回模式，减少深层嵌套
+- 错误处理要显式，避免静默失败
+- 复杂逻辑抽取为可复用的 composables
+
+## TypeScript 使用
+- 导出的 API 必须有明确类型标注
+- 避免使用 `any`，优先使用具体类型或泛型
+- 利用 Vue 3 的类型推导能力
+
+## uni-app 跨平台约定
+- 使用 `@dcloudio/uni-app` 提供的 API，避免直接调用 `window` 等浏览器 API
+- 条件编译使用 `// #ifdef` 和 `// #endif` 注释
+- 样式优先使用原子类，复杂场景再使用 [src/global.scss](mdc:src/global.scss)
+
+## 生命周期使用
+- 页面生命周期：`onLoad`, `onShow`, `onHide` 等
+- 应用生命周期：`onLaunch`, `onShow`, `onHide`
+- 组件生命周期：`onMounted`, `onUnmounted` 等
+
+## 导入约定
+- uni-app API 从 `@dcloudio/uni-app` 导入
+- Vue 相关从 `vue` 导入
+- 工具函数从 `src/utils/` 导入

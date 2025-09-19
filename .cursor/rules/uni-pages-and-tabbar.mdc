@@ -1,0 +1,26 @@
+---
+globs: src/pages/**/index.vue,src/pages.json
+description: 指导页面注册、导航标题、TabBar 约定
+---
+# 页面与 TabBar 配置指南
+
+## 页面注册流程
+1. 在 [src/pages.json](mdc:src/pages.json) 的 `pages` 数组中注册新页面路径
+2. 创建对应的 `src/pages/<feature>/index.vue` 文件
+3. 配置页面的 `style` 字段设置导航栏标题和背景色
+
+## TabBar 配置
+- 在 `pages.json` 的 `tabBar.list` 中维护底部导航
+- 图标资源放在 [src/static/tabbar/](mdc:src/static/tabbar/) 目录
+- 每个 TabBar 项需要 `iconPath` 和 `selectedIconPath`
+- 当前 TabBar 包含：打卡、日历、统计、我的
+
+## 页面命名约定
+- 路径格式：`pages/<feature>/index`
+- 文件位置：`src/pages/<feature>/index.vue`
+- 导航标题使用中文，保持简洁明了
+
+## 样式约定
+- 导航栏背景色统一使用 `#ffffff`
+- 全局背景色：`#F8F8F8`
+- TabBar 选中色：`#337EFD`，未选中色：`#6F7884`

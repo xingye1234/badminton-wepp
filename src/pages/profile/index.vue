@@ -271,18 +271,17 @@
     <wd-toast />
   </template>
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
-import { onShow } from '@dcloudio/uni-app'
-import AppLayout from '@/components/AppLayout.vue'
+import { ref, computed, onMounted, watch } from "vue";
+import { onShow } from "@dcloudio/uni-app";
+import { useToast } from "wot-design-uni";
+import AppLayout from "@/components/AppLayout.vue";
 import { 
   getAllRecords, 
   getCurrentMonthStats, 
   getMonthlyTarget,
-  setMonthlyTarget,
-  ClockInRecord,
-  TrainingStats
-} from '@/utils/storage'
-import { useToast } from 'wot-design-uni'
+  setMonthlyTarget
+} from "@/utils/storage";
+import type { ClockInRecord, TrainingStats } from "@/utils/storage";
 
 const nickname = ref('羽毛球爱好者')
 const editMode = ref(false)

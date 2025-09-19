@@ -1,0 +1,29 @@
+---
+alwaysApply: true
+---
+# 项目结构与入口
+
+这是一个基于 uni-app + Vue 3 + TypeScript + UnoCSS + Wot Design Uni 的羽毛球训练打卡应用。
+
+## 核心文件结构
+- 入口文件：[src/main.ts](mdc:src/main.ts) 创建 SSR 应用，引入 UnoCSS
+- 根组件：[src/App.vue](mdc:src/App.vue) 处理应用生命周期
+- 页面路由：[src/pages.json](mdc:src/pages.json) 配置页面注册、导航栏、TabBar
+- 全局样式：[src/global.scss](mdc:src/global.scss) 自定义样式补充
+- 工具函数：[src/utils/](mdc:src/utils/) 存储等工具
+
+## 页面结构
+- `pages/index/` - 训练打卡主页面
+- `pages/calendar/` - 训练日历
+- `pages/statistics/` - 训练统计
+- `pages/profile/` - 个人信息
+- `pages/clockIn/` - 打卡功能页
+
+## 静态资源
+- `src/static/tabbar/` - TabBar 图标
+- `src/static/images/` - 应用图片资源
+
+## 配置文件
+- [vite.config.ts](mdc:vite.config.ts) - Vite 构建配置
+- [uno.config.ts](mdc:uno.config.ts) - UnoCSS 配置
+- [tsconfig.json](mdc:tsconfig.json) - TypeScript 配置

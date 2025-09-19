@@ -1,0 +1,30 @@
+---
+alwaysApply: false
+description: 常用开发与构建命令
+---
+# 开发与构建命令
+
+基于 [package.json](mdc:package.json) 的脚本配置。
+
+## 开发环境
+- **H5 开发**：`pnpm dev:h5` - 在浏览器中开发调试
+- **微信小程序**：`pnpm dev:mp-weixin` - 微信开发者工具
+- **支付宝小程序**：`pnpm dev:mp-alipay`
+- **其他平台**：`pnpm dev:mp-<platform>` (baidu, qq, toutiao 等)
+
+## 构建命令
+- **H5 构建**：`pnpm build:h5`
+- **小程序构建**：`pnpm build:mp-<platform>`
+- **类型检查**：`pnpm type-check`
+
+## 环境要求
+- Node.js 版本：18（见 [README.md](mdc:README.md)）
+- 包管理器：pnpm
+- 安装依赖：`pnpm i`
+
+## 技术栈版本
+- uni-app: 3.0.0-4030620241128001
+- Vue: ^3.4.21
+- TypeScript: ^4.9.4
+- UnoCSS: ^0.61.6
+- Wot Design Uni: ^1.9.1

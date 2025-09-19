@@ -1,0 +1,38 @@
+---
+globs: src/**/*.vue,uno.config.ts
+description: UnoCSS 使用约定与最佳实践
+---
+# UnoCSS 使用约定
+
+## 全局配置
+- UnoCSS 在 [src/main.ts](mdc:src/main.ts) 中全局引入 `uno.css`
+- 配置文件：[uno.config.ts](mdc:uno.config.ts)
+- 小程序适配：使用 `unocss-preset-weapp` 预设
+
+## 原子类优先原则
+- 优先使用 UnoCSS 原子类，减少手写 CSS
+- 常用类名：`flex`, `items-center`, `justify-between`, `text-center` 等
+- 响应式：`sm:`, `md:`, `lg:` 等前缀
+- 颜色：`text-blue-500`, `bg-gray-100` 等
+
+## 自定义扩展
+- 需要自定义样式时，在 [uno.config.ts](mdc:uno.config.ts) 中定义：
+  - `rules`: 自定义规则
+  - `shortcuts`: 快捷类组合
+  - `theme`: 主题扩展
+
+## 小程序兼容性
+- 使用 `unocss-preset-weapp` 确保小程序兼容
+- 避免使用小程序不支持的 CSS 特性
+- 测试时注意各平台差异
+
+## 最佳实践
+- 复杂布局优先使用 Flex/Grid 原子类
+- 颜色使用主题色彩系统
+- 间距使用标准化的 spacing scale
+- 避免内联样式，保持类名的可维护性
+
+## 调试技巧
+- 开发时可以在浏览器中查看生成的 CSS
+- 使用 UnoCSS Inspector 调试工具
+- 关注构建产物中的 CSS 大小

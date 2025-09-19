@@ -245,21 +245,20 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from "vue";
-import { onShow } from '@dcloudio/uni-app';
+import { onShow } from "@dcloudio/uni-app";
+import AppLayout from "@/components/AppLayout.vue";
 import MilestoneMask from "@/components/MilestoneMask.vue";
 import AICoachCard from "@/components/AICoachCard.vue";
-import AppLayout from '@/components/AppLayout.vue';
 import { 
   getAllRecords, 
   getTodayString, 
   getRecordByDate, 
   getCurrentMonthStats, 
   getMonthlyTarget,
-  ClockInRecord,
   getTodayAdvice,
-  CoachAdvice,
   saveMonthlyAdvice
 } from "@/utils/storage";
+import type { ClockInRecord, CoachAdvice } from "@/utils/storage";
 
 // 用户基础信息
 const nickname = ref('羽毛球爱好者');
